@@ -1,0 +1,32 @@
+{
+  "name": "dropcontract",
+  "version": "1.0.0",
+  "description": "**Edit a file, create a new file, and clone from Bitbucket in under 2 minutes**",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://talentmuh@bitbucket.org/talentmuh/dropcontract.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/talentmuh/dropcontract#readme",
+  "devDependencies": {
+    "hardhat": "^2.7.0"
+  },
+  "dependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@openzeppelin/contracts": "^4.4.1",
+    "add": "^2.0.6",
+    "chai": "^4.3.4",
+    "csvtojson": "^2.0.10",
+    "dotenv": "^10.0.0",
+    "ethereum-waffle": "^3.4.0",
+    "ethers": "^5.5.2",
+    "objects-to-csv": "^1.3.6"
+  }
+}

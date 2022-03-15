@@ -1,0 +1,35 @@
+definitions:
+  updateOS: &update
+    apt-get update
+  printVersion: &version
+    node --version && npm --version
+
+pipelines:
+  custom:
+    generate-artifacts:
+      - step:
+          name: hardhat compile
+          image: node:16
+          size: 1x
+          script:
+            - *update
+            - *version
+            - npm install --no-audit
+            - npx hardhat compile
+            - npx hardhat test
+          artifacts:
+            - artifacts/**
+  pull-requests:
+    '**': #this runs as default for any branch
+      - step:
+          name: hardhat compile
+          image: node:16
+          size: 1x
+          script:
+            - *update
+            - *version
+            - npm install --no-audit
+            - npx hardhat compile
+            - npx hardhat test
+          artifacts:
+            - artifacts/**
