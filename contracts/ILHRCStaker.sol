@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/interfaces/IERC1155ReceiverUpgradeab
 struct NFTInfo {
     address nft;
     uint256 id;
+    uint256 stakedAt;
 }
 interface ILHRCStaker is IERC1155ReceiverUpgradeable {
 

@@ -17,7 +17,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "./SafePct.sol";
 import "./SafeMathLite.sol";
-// import "./RewardsPool.sol";
 import "hardhat/console.sol";
 
 
@@ -28,11 +27,17 @@ OwnableUpgradeable,
 ReentrancyGuardUpgradeable, 
 ERC1155ReceiverUpgradeable,
 UUPSUpgradeable {
-    struct USER {
-        uint256 balance;
-        uint256 lpBalance;
+    struct BalanceHistory {
+        uint256 amount;
+        uint256 stakedAt;
+    }
+    struct StakeInfo {
+        uint256 totalAmount;
+        uint256 totalLPAmount;
         uint256 pendingRewards;
         uint256 lastChecked;
+        uint256 availableAmount;
+        uint256 availableLPAmount;
     }
 
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
@@ -52,12 +57,14 @@ UUPSUpgradeable {
 
     EnumerableSetUpgradeable.AddressSet private stakers;    
     mapping(address => NFTInfo[]) stakedNFTs;
-    mapping(address => USER) users;
+    mapping(address => StakeInfo) stakeInfos;
+    mapping(address => BalanceHistory[]) recentBalances;
+    mapping(address => BalanceHistory[]) recentLPBalances;
 
     address stakeToken;
     address lpToken;
-    uint256 balance;
-    uint256 lpBalance;
+    // uint256 totalBalance;
+    uint256 totalLPBalance;
     bytes4 public constant IID_IERC721 = type(IERC721).interfaceId;
 
     bytes32 public constant UPGRADER_ROLE = keccak256('UPGRADER_ROLE');
@@ -136,40 +143,45 @@ UUPSUpgradeable {
     }
 
     function getCurrentRewards(address _user) external override returns(uint256) {
-        calculatePendingRewards(_user);
-        return users[_user].pendingRewards;
+        calculatePendingRewards(_user, block.timestamp);
+        return stakeInfos[_user].pendingRewards;
+    }
+    
+    function setLptoken(address _lpToken) external  onlyRole(DEFAULT_ADMIN_ROLE) {
+        lpToken = _lpToken;
     }
 
-    function calculatePendingRewards(address _user) private {
+    function getUserInfo(address _user) external view returns(StakeInfo memory) {
+        return stakeInfos[_user];
+    }
+
+    function calculatePendingRewards(address _user, uint256 _currentTime) private {
        uint256 amplify = calculateAmplify(msg.sender);
-
-       uint256 currentTime = block.timestamp;
-
-       uint256 period = currentTime - users[_user].lastChecked;
+       uint256 period = _currentTime - stakeInfos[_user].lastChecked;
        uint256 pendingBalance;
-       if (users[_user].balance > 0) {
-           pendingBalance = users[_user].balance .mul(amplify).mulDiv(baseAPY, 100).mulDiv(period, 365 days);
-           console.log("perid", period );
-           console.log("pendingbalance", pendingBalance);
+       if (stakeInfos[_user].totalAmount > 0) {
+           pendingBalance = stakeInfos[_user].totalAmount .mul(amplify).mulDiv(baseAPY, 100).mulDiv(period, 365 days);
        }
-       if (users[_user].lpBalance > 0) {
-           pendingBalance = pendingBalance + users[_user].lpBalance.mul(amplify).mulDiv(period, 365 days);
+       if (stakeInfos[_user].totalLPAmount > 0) {
+           pendingBalance = pendingBalance + stakeInfos[_user].totalLPAmount.mul(amplify).mulDiv(period, 365 days);
        }
-       users[_user].pendingRewards = users[_user].pendingRewards + pendingBalance;
-       users[_user].lastChecked = currentTime;       
+       stakeInfos[_user].pendingRewards = stakeInfos[_user].pendingRewards + pendingBalance;
+       stakeInfos[_user].lastChecked = _currentTime;       
     }
 
     function stakeNFT(address _nft, uint256 _nftId) external{
+        uint256 currentTime = block.timestamp;
         require(stakedNFTs[msg.sender].length < maxNFTPerWallet, "exceed max nfts");
         require(IERC721(_nft).ownerOf(_nftId) == msg.sender, "not nft owner");
         if (!isBoostNFT(_nft)) {
             revert("not unsupported nft");
         }
-        calculatePendingRewards(msg.sender);
+        calculatePendingRewards(msg.sender, currentTime);
        
         NFTInfo memory nftInfo;
         nftInfo.nft = _nft;
         nftInfo.id = _nftId;
+        nftInfo.stakedAt = currentTime;
         stakedNFTs[msg.sender].push(nftInfo);
         IERC721(_nft).transferFrom(msg.sender, address(this), _nftId);
         
@@ -190,11 +202,13 @@ UUPSUpgradeable {
 
     function unstakeNFT(address _nft, uint256 _nftId) external {
         uint _index = getStakedNFTIndex(_nft, _nftId);
-
         if (_index == type(uint256).max) {
             revert("no exists");
         }
-        calculatePendingRewards(msg.sender);
+        if (stakedNFTs[msg.sender][_index].stakedAt + lockPeriod >= block.timestamp ) {
+            revert("locked NFT");
+        }
+        calculatePendingRewards(msg.sender, block.timestamp);
         
         IERC721(_nft).transferFrom(address(this), msg.sender, _nftId);
         if (stakedNFTs[msg.sender].length > 1) {
@@ -203,31 +217,33 @@ UUPSUpgradeable {
         stakedNFTs[msg.sender].pop();
 
         emit NFTUnStaked(msg.sender, _nft, _nftId);
-    }
-
-    function setLptoken(address _lpToken) external  onlyRole(DEFAULT_ADMIN_ROLE) {
-        lpToken = _lpToken;
-    }
-
-    function getUserInfo(address _user) external view returns(USER memory) {
-        return users[_user];
-    }
+    }    
 
     function stake(address _token, uint256 _amount) external onlyCorrectToken(_token) {
         require(_amount > 0, "invalid amount");
         require(IERC20(_token).balanceOf(msg.sender) >= _amount, "not enough funds");
         
         stakers.add(msg.sender);
-        calculatePendingRewards(msg.sender);
+        uint256 currentTime = block.timestamp;
+        calculatePendingRewards(msg.sender, currentTime);
 
         if (_token == stakeToken) {
-            users[msg.sender].balance = users[msg.sender].balance + _amount;
-            balance = balance + _amount;
+            stakeInfos[msg.sender].totalAmount = stakeInfos[msg.sender].totalAmount + _amount;
+            // totalBalance = totalBalance + _amount;
+
+            BalanceHistory memory balanceHistory;
+            balanceHistory.amount = _amount;
+            balanceHistory.stakedAt = currentTime;
+            recentBalances[msg.sender].push(balanceHistory);
             emit LHRCStaked(msg.sender, _amount);
         } else if (_token == lpToken) {
-            users[msg.sender].lpBalance =  users[msg.sender].lpBalance + _amount;
-            lpBalance = lpBalance + _amount;
+            stakeInfos[msg.sender].totalLPAmount =  stakeInfos[msg.sender].totalLPAmount + _amount;
+            totalLPBalance = totalLPBalance + _amount;
             
+            BalanceHistory memory balanceHistory;
+            balanceHistory.amount = _amount;
+            balanceHistory.stakedAt = currentTime;
+            recentLPBalances[msg.sender].push(balanceHistory);
             emit LPStaked(msg.sender, _amount);
         }
 
@@ -235,24 +251,67 @@ UUPSUpgradeable {
         require(success);
     }
 
+    function calculateAvailableAmount(address _address, bool isStakeToken) private {
+        if (isStakeToken) {
+            if (stakeInfos[_address].lastChecked + lockPeriod <= block.timestamp) {
+                stakeInfos[_address].availableAmount = stakeInfos[_address].totalAmount;
+                delete recentBalances[_address];
+            } else {
+                uint256 len = recentBalances[_address].length;
+                BalanceHistory[] storage history = recentBalances[_address];
+
+                uint256 availableAmount = stakeInfos[_address].availableAmount;
+                for (uint256 i = 0; i < len; i ++) {
+                    if (history[i].stakedAt + lockPeriod <= block.timestamp) {
+                        availableAmount += history[i].amount;
+                    } else if( i != 0) {
+                        stakeInfos[_address].availableAmount = availableAmount;
+                        for (uint256 j = 0; j < len - i; j ++) {
+                            history[j] = history[j + i];
+                        }
+
+                        return;
+                    }
+                    if (i == len -1) {
+                        delete recentBalances[_address];
+                        stakeInfos[_address].availableAmount = availableAmount;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     function unstake(address _token, uint256 _amount) external onlyCorrectToken(_token) nonReentrant {
-        calculatePendingRewards(msg.sender);
-        USER memory _user = users[msg.sender];
+        calculatePendingRewards(msg.sender, block.timestamp);
+        StakeInfo storage _user = stakeInfos[msg.sender];
 
         uint256 amountDue = _amount - _amount.mulDiv(fee, SCALE);
         if (_token == stakeToken) {
-            require(_user.balance >= _amount, "not enough funds");
-            _user.balance = _user.balance - _amount;
+            require(_user.totalAmount >= _amount, "not enough funds");
+            calculateAvailableAmount(msg.sender, true);
+            if (_user.availableAmount >= _amount) {
+                _user.totalAmount = _user.totalAmount - _amount;
+                _user.availableAmount = _user.availableAmount - _amount;
+            } else {
+                revert("token locked");
+            }
 
             emit LHRCUnStaked(msg.sender, _amount);
         } else if (_token == lpToken) {
-            require(_user.lpBalance >= _amount, "not enough funds");
-            _user.lpBalance = _user.lpBalance - _amount;
+            require(_user.totalLPAmount >= _amount, "not enough funds");
+            calculateAvailableAmount(msg.sender, false);
+            if (_user.availableLPAmount >= _amount) {
+                _user.totalLPAmount = _user.totalLPAmount - _amount;
+                _user.availableLPAmount = _user.availableLPAmount - _amount;
+            } else {
+                revert("token locked");
+            }
 
             emit LPUnStaked(msg.sender, _amount);
         }
 
-        users[msg.sender] = _user;
+        stakeInfos[msg.sender] = _user;
         bool success = IERC20(_token).transfer(msg.sender, amountDue);
         require(success);
     }
@@ -297,19 +356,21 @@ UUPSUpgradeable {
     }
 
     function harvest() external {
-       require(users[msg.sender].lastChecked != 0, "no available");
-       require(block.timestamp - users[msg.sender].lastChecked >= lockPeriod, "already harvested");
+       require(stakeInfos[msg.sender].lastChecked != 0, "no available");
+       uint256 currentTime = block.timestamp;
+       require(currentTime - stakeInfos[msg.sender].lastChecked >= lockPeriod, "already harvested");
 
-       calculatePendingRewards(msg.sender);
-       console.log(balance);
-       uint256 _pendingRewards = users[msg.sender].pendingRewards;
-       require(_pendingRewards <= balance, "not enough funds");
-       balance = balance - _pendingRewards;
+       calculatePendingRewards(msg.sender, currentTime);
+
+       uint256 _pendingRewards = stakeInfos[msg.sender].pendingRewards;
+       uint256 totalBalance = IERC20(stakeToken).balanceOf(address(this));
+       require(_pendingRewards <= totalBalance, "not enough funds");
+    //    totalBalance = totalBalance - _pendingRewards;
        bool success = IERC20(stakeToken).transfer(msg.sender, _pendingRewards);
        require(success);
 
-       users[msg.sender].pendingRewards = 0;
-       users[msg.sender].lastChecked = block.timestamp;
+       stakeInfos[msg.sender].pendingRewards = 0;
+       stakeInfos[msg.sender].lastChecked = currentTime;
     }
 
     // OWNER
