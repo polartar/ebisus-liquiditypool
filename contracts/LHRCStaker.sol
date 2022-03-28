@@ -19,6 +19,10 @@ import "./SafePct.sol";
 import "./SafeMathLite.sol";
 import "hardhat/console.sol";
 
+interface ILiquidityPool {
+    function getReserves() external returns(uint256, uint256);
+    function totalSupply() external returns(uint256);
+}
 
 contract LHRCStaker is 
 ILHRCStaker,
@@ -64,7 +68,7 @@ UUPSUpgradeable {
     address stakeToken;
     address lpToken;
     // uint256 totalBalance;
-    uint256 totalLPBalance;
+    // uint256 totalLPBalance;
     bytes4 public constant IID_IERC721 = type(IERC721).interfaceId;
 
     bytes32 public constant UPGRADER_ROLE = keccak256('UPGRADER_ROLE');
@@ -160,12 +164,16 @@ UUPSUpgradeable {
        uint256 period = _currentTime - stakeInfos[_user].lastChecked;
        uint256 pendingBalance;
        if (stakeInfos[_user].totalAmount > 0) {
-           pendingBalance = stakeInfos[_user].totalAmount .mul(amplify).mulDiv(baseAPY, 100).mulDiv(period, 365 days);
+           pendingBalance = stakeInfos[_user].totalAmount.mul(amplify).mulDiv(baseAPY, 100).mulDiv(period, 365 days);
        }
        if (stakeInfos[_user].totalLPAmount > 0) {
-           pendingBalance = pendingBalance + stakeInfos[_user].totalLPAmount.mul(amplify).mulDiv(period, 365 days);
+           (, uint256 LHRCAmount) = ILiquidityPool(lpToken).getReserves();
+            uint256 lpTotal = ILiquidityPool(lpToken).totalSupply();
+            // calcualte LHRC paired fro LP
+            uint256 pairedAmount = LHRCAmount.mulDiv(stakeInfos[_user].totalLPAmount, lpTotal);
+           pendingBalance = pendingBalance + pairedAmount.mul(amplify).mulDiv(period, 365 days);
        }
-       stakeInfos[_user].pendingRewards = stakeInfos[_user].pendingRewards + pendingBalance;
+       stakeInfos[_user].pendingRewards += pendingBalance;
        stakeInfos[_user].lastChecked = _currentTime;       
     }
 
@@ -238,7 +246,7 @@ UUPSUpgradeable {
             emit LHRCStaked(msg.sender, _amount);
         } else if (_token == lpToken) {
             stakeInfos[msg.sender].totalLPAmount =  stakeInfos[msg.sender].totalLPAmount + _amount;
-            totalLPBalance = totalLPBalance + _amount;
+            // totalLPBalance = totalLPBalance + _amount;
             
             BalanceHistory memory balanceHistory;
             balanceHistory.amount = _amount;
@@ -252,11 +260,14 @@ UUPSUpgradeable {
     }
 
     function calculateAvailableAmount(address _address, bool isStakeToken) private {
-        if (isStakeToken) {
-            if (stakeInfos[_address].lastChecked + lockPeriod <= block.timestamp) {
-                stakeInfos[_address].availableAmount = stakeInfos[_address].totalAmount;
-                delete recentBalances[_address];
-            } else {
+        if (stakeInfos[_address].lastChecked + lockPeriod <= block.timestamp) {
+            stakeInfos[_address].availableAmount = stakeInfos[_address].totalAmount;
+            stakeInfos[_address].availableLPAmount = stakeInfos[_address].totalLPAmount;
+
+            delete recentBalances[_address];
+            delete recentLPBalances[_address];
+        } else {
+            if (isStakeToken) {
                 uint256 len = recentBalances[_address].length;
                 BalanceHistory[] storage history = recentBalances[_address];
 
@@ -269,6 +280,10 @@ UUPSUpgradeable {
                         for (uint256 j = 0; j < len - i; j ++) {
                             history[j] = history[j + i];
                         }
+                        
+                        for (uint256 j = 0; j < i; j ++) {
+                            history.pop();
+                        }
 
                         return;
                     }
@@ -278,9 +293,35 @@ UUPSUpgradeable {
                         return;
                     }
                 }
-            }
+            } else {
+                uint256 len = recentLPBalances[_address].length;
+                BalanceHistory[] storage history = recentLPBalances[_address];
+
+                uint256 availableAmount = stakeInfos[_address].availableLPAmount;
+                for (uint256 i = 0; i < len; i ++) {
+                    if (history[i].stakedAt + lockPeriod <= block.timestamp) {
+                        availableAmount += history[i].amount;
+                    } else if( i != 0) {
+                        stakeInfos[_address].availableLPAmount = availableAmount;
+                        for (uint256 j = 0; j < len - i; j ++) {
+                            history[j] = history[j + i];
+                        }
+
+                        for (uint256 j = 0; j < i; j ++) {
+                            history.pop();
+                        }
+
+                        return;
+                    }
+                    if (i == len -1) {
+                        delete recentLPBalances[_address];
+                        stakeInfos[_address].availableLPAmount = availableAmount;
+                        return;
+                    }
+                }
+            }            
         }
-    }
+     }
 
     function unstake(address _token, uint256 _amount) external onlyCorrectToken(_token) nonReentrant {
         calculatePendingRewards(msg.sender, block.timestamp);

@@ -2,28 +2,118 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
+      "address": "0xa6e99A4ED7498b3cdDCBB61a6A607a4925Faa1B7",
+      "txHash": "0xbc7a0f4d49e7e2f61283c567c0f108ed9bbae1a9056eed4d9a8dfe2ef0e3b48d",
+      "kind": "uups"
+    },
+    {
+      "address": "0x66F625B8c4c635af8b74ECe2d7eD0D58b4af3C3d",
+      "txHash": "0x7cbb8761da133e5dd54dca28280fc7c4a79597ded7487b8bf13367500d76b293",
+      "kind": "uups"
+    },
+    {
+      "address": "0x413b1AfCa96a3df5A686d8BFBF93d30688a7f7D9",
+      "txHash": "0x0ef3940cb4a4a585149b44617f54a48569366b6842b2d7f20568f95ba3158855",
+      "kind": "uups"
+    },
+    {
+      "address": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
+      "txHash": "0x5496d47401948ae04a38dcc993f13011fde01a14527f39e7bbca844fa86a5b96",
+      "kind": "uups"
+    },
+    {
+      "address": "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+      "txHash": "0x3163241db41625e5ac0bd32eefe0fce956efc06969806c242d3fce9c8f2a3db3",
+      "kind": "uups"
+    },
+    {
+      "address": "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9",
+      "txHash": "0x0b8d32678b74eeb33fa210e9f38a24cf013b788903266b02c9f1036dececd39a",
+      "kind": "uups"
+    },
+    {
+      "address": "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154",
+      "txHash": "0x7b973fa23bf47689af9af8ae2d86be31ee2bad67465221f11517bb7b986fbfc3",
+      "kind": "uups"
+    },
+    {
+      "address": "0x04C89607413713Ec9775E14b954286519d836FEf",
+      "txHash": "0xd737dc46676eb0fc787e7a39afc4fbd89cc1d72c44cc1a8252774718e49e445a",
+      "kind": "uups"
+    },
+    {
+      "address": "0xfbC22278A96299D91d41C453234d97b4F5Eb9B2d",
+      "txHash": "0x9859af56f868a1b9ea2635b61f9a2e5114a0dd8351cf764f1edb719682b2b1f0",
+      "kind": "uups"
+    },
+    {
+      "address": "0x18E317A7D70d8fBf8e6E893616b52390EbBdb629",
+      "txHash": "0xa592d7f1b1346db12878a5c3ee216ec9a9033f50bea39cc960fa324aaa868725",
+      "kind": "uups"
+    },
+    {
+      "address": "0xffa7CA1AEEEbBc30C874d32C7e22F052BbEa0429",
+      "txHash": "0x368d7b2c04a586ecc70e0784c8b33d693dd1968f5c5a7c654dfa9f8a444f69c4",
+      "kind": "uups"
+    },
+    {
+      "address": "0x6F6f570F45833E249e27022648a26F4076F48f78",
+      "txHash": "0x299507aff5ee1169490a563bedf60c81bb067c424a1539fc87dcfc6046597ed2",
+      "kind": "uups"
+    },
+    {
+      "address": "0x0ed64d01D0B4B655E410EF1441dD677B695639E7",
+      "txHash": "0xa7d057756ce735512a4f128e3e23dc22f3938f7cdc1966079df60e896933929d",
+      "kind": "uups"
+    },
+    {
+      "address": "0x70bDA08DBe07363968e9EE53d899dFE48560605B",
+      "txHash": "0xfe0fb02d2280914a3a2997c31185d12a2cc945d763884ec2f71625e31896eb7f",
+      "kind": "uups"
+    },
+    {
+      "address": "0xC66AB83418C20A65C3f8e83B3d11c8C3a6097b6F",
+      "txHash": "0xca72179cb9fd6c10453d123c499f6cc727be66caca4fb5b2a9e2d6f442cc70ae",
+      "kind": "uups"
+    },
+    {
+      "address": "0x3C15538ED063e688c8DF3d571Cb7a0062d2fB18D",
+      "txHash": "0xe74cabecfbff1beeb9c7c0dc56cf6ac7f37ead6e5a5416158bed4ec79b0d2512",
+      "kind": "uups"
+    },
+    {
+      "address": "0xc9952Fc93Fa9bE383ccB39008c786b9f94eAc95d",
+      "txHash": "0xc3a9ea7de95b10e8b3a255f8d6080dfe878e9179a5c830ac23d0083f5757ce6f",
+      "kind": "uups"
+    },
+    {
+      "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
+      "txHash": "0xdee48f2354a3539c2cf5343cf701cf9509a5f18a3207baa95bf29180aaa263db",
+      "kind": "uups"
+    },
+    {
       "address": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
-      "txHash": "0x5bbb20d2714d33686b3dc9e9538663d89e07b14b35329b6d780215c97066098c",
+      "txHash": "0xaa4f7516e185b12d640ca9c46f5a07588edb42aceca71f17c49c80617727c2d8",
       "kind": "uups"
     },
     {
       "address": "0x9d4454B023096f34B160D6B654540c56A1F81688",
-      "txHash": "0x2f2b3e40f88a14288a55c60cb16870f24f6c195515c8d8f8a9eb659d504bd9a5",
+      "txHash": "0x01ff57d038bf212911b7894503f392fb2c3182036bb2ecc5572dbec7362c89f7",
       "kind": "uups"
     },
     {
       "address": "0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc",
-      "txHash": "0xf3c3d933ef9d737f6c7e7e3bd27e5d8d9e56b0dbd2b47b3e8f435522b6127b62",
+      "txHash": "0xc85120b22937c8a3644b276e8b63d646ea653f7bc3402495bda24a6b890430c4",
       "kind": "uups"
     },
     {
       "address": "0x36b58F5C1969B7b6591D752ea6F5486D069010AB",
-      "txHash": "0x5c0aacb2d2cc48f409a3d948f08cefeeeabca7b5440f9a45d40a939a5fe6c8e6",
+      "txHash": "0xc80c340f490ecefe7d27d4685369ea693f1e2abcb9d8c6675013d01218d2b071",
       "kind": "uups"
     },
     {
       "address": "0x4C2F7092C2aE51D986bEFEe378e50BD4dB99C901",
-      "txHash": "0x97eeb5e895b5cf75c5dc54ff99ccca984c0a2c2d284be7d9b2455ed68fb38386",
+      "txHash": "0xb1699be0a9f2b8badbb31a57ba41588b7fa9828dadba678213fbc0884854ea09",
       "kind": "uups"
     },
     {
@@ -42,35 +132,30 @@
       "kind": "uups"
     },
     {
-      "address": "0xa6e99A4ED7498b3cdDCBB61a6A607a4925Faa1B7",
-      "txHash": "0xbc7a0f4d49e7e2f61283c567c0f108ed9bbae1a9056eed4d9a8dfe2ef0e3b48d",
+      "address": "0xFD6F7A6a5c21A3f503EBaE7a473639974379c351",
+      "txHash": "0x1f76c026cef05e4c4268ba8d71da97c4b0876bc2ae3e6cbb84d159f4c571a9f6",
       "kind": "uups"
     },
     {
-      "address": "0x66F625B8c4c635af8b74ECe2d7eD0D58b4af3C3d",
-      "txHash": "0x7cbb8761da133e5dd54dca28280fc7c4a79597ded7487b8bf13367500d76b293",
+      "address": "0xB377a2EeD7566Ac9fCb0BA673604F9BF875e2Bab",
+      "txHash": "0xa1dc4f6032069ab1a3fe2ddc734621534f2c6d88e6d6b72429ec4296830e19a7",
       "kind": "uups"
     },
     {
-      "address": "0x413b1AfCa96a3df5A686d8BFBF93d30688a7f7D9",
-      "txHash": "0x0ef3940cb4a4a585149b44617f54a48569366b6842b2d7f20568f95ba3158855",
+      "address": "0x2b5A4e5493d4a54E717057B127cf0C000C876f9B",
+      "txHash": "0x924b12d319cdb95fb62e4e96efe1d0b3f04d0c2470448a51f34b3a6e32aa93b5",
       "kind": "uups"
     },
     {
-      "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
-      "txHash": "0x1bf550869143b134d1935b0755f7ae40873bba196df1d11efdda6540095b094d",
-      "kind": "uups"
-    },
-    {
-      "address": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
-      "txHash": "0x5496d47401948ae04a38dcc993f13011fde01a14527f39e7bbca844fa86a5b96",
+      "address": "0x38A70c040CA5F5439ad52d0e821063b0EC0B52b6",
+      "txHash": "0xc13c3bd85b89cd3a31dd5882d8887c51ce360f46cfa20de10926ce89c40adcfe",
       "kind": "uups"
     }
   ],
   "impls": {
-    "d162d7ff7cc160d3b12d188cc56a37b4494b34fab1c2209d87868ecacdd220f2": {
-      "address": "0x8438Ad1C834623CfF278AB6829a248E37C2D7E3f",
-      "txHash": "0x3341a62cbb5be22fec9d8b761b82403fda1e8f55c1535a222fb334c5aa3b9252",
+    "1512cda3b591f615f5179ca18c6684fa48ca63db6654e6ba19c4867f81cd4157": {
+      "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+      "txHash": "0x5b76a50a587cc5d716e8bfd45fab347aaebb8f8ed14d300c4134a22e7dfe6a81",
       "layout": {
         "storage": [
           {
@@ -183,7 +268,7 @@
             "slot": "401",
             "type": "t_struct(AddressSet)2271_storage",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:49"
+            "src": "contracts\\LHRCStaker.sol:53"
           },
           {
             "label": "amplifiers",
@@ -191,7 +276,7 @@
             "slot": "403",
             "type": "t_mapping(t_address,t_uint8)",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:50"
+            "src": "contracts\\LHRCStaker.sol:54"
           },
           {
             "label": "baseAPY",
@@ -199,7 +284,7 @@
             "slot": "404",
             "type": "t_uint256",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:53"
+            "src": "contracts\\LHRCStaker.sol:57"
           },
           {
             "label": "fee",
@@ -207,7 +292,7 @@
             "slot": "405",
             "type": "t_uint256",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:54"
+            "src": "contracts\\LHRCStaker.sol:58"
           },
           {
             "label": "lockPeriod",
@@ -215,7 +300,7 @@
             "slot": "406",
             "type": "t_uint256",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:56"
+            "src": "contracts\\LHRCStaker.sol:60"
           },
           {
             "label": "stakers",
@@ -223,39 +308,39 @@
             "slot": "407",
             "type": "t_struct(AddressSet)2271_storage",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:58"
+            "src": "contracts\\LHRCStaker.sol:62"
           },
           {
             "label": "stakedNFTs",
             "offset": 0,
             "slot": "409",
-            "type": "t_mapping(t_address,t_array(t_struct(NFTInfo)5592_storage)dyn_storage)",
+            "type": "t_mapping(t_address,t_array(t_struct(NFTInfo)6191_storage)dyn_storage)",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:59"
+            "src": "contracts\\LHRCStaker.sol:63"
           },
           {
             "label": "stakeInfos",
             "offset": 0,
             "slot": "410",
-            "type": "t_mapping(t_address,t_struct(StakeInfo)5718_storage)",
+            "type": "t_mapping(t_address,t_struct(StakeInfo)6330_storage)",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:60"
+            "src": "contracts\\LHRCStaker.sol:64"
           },
           {
             "label": "recentBalances",
             "offset": 0,
             "slot": "411",
-            "type": "t_mapping(t_address,t_array(t_struct(BalanceHistory)5705_storage)dyn_storage)",
+            "type": "t_mapping(t_address,t_array(t_struct(BalanceHistory)6317_storage)dyn_storage)",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:61"
+            "src": "contracts\\LHRCStaker.sol:65"
           },
           {
             "label": "recentLPBalances",
             "offset": 0,
             "slot": "412",
-            "type": "t_mapping(t_address,t_array(t_struct(BalanceHistory)5705_storage)dyn_storage)",
+            "type": "t_mapping(t_address,t_array(t_struct(BalanceHistory)6317_storage)dyn_storage)",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:62"
+            "src": "contracts\\LHRCStaker.sol:66"
           },
           {
             "label": "stakeToken",
@@ -263,7 +348,7 @@
             "slot": "413",
             "type": "t_address",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:64"
+            "src": "contracts\\LHRCStaker.sol:68"
           },
           {
             "label": "lpToken",
@@ -271,23 +356,7 @@
             "slot": "414",
             "type": "t_address",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:65"
-          },
-          {
-            "label": "totalBalance",
-            "offset": 0,
-            "slot": "415",
-            "type": "t_uint256",
-            "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:66"
-          },
-          {
-            "label": "totalLPBalance",
-            "offset": 0,
-            "slot": "416",
-            "type": "t_uint256",
-            "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:67"
+            "src": "contracts\\LHRCStaker.sol:69"
           }
         ],
         "types": {
@@ -299,11 +368,11 @@
             "label": "bytes32[]",
             "numberOfBytes": "32"
           },
-          "t_array(t_struct(BalanceHistory)5705_storage)dyn_storage": {
+          "t_array(t_struct(BalanceHistory)6317_storage)dyn_storage": {
             "label": "struct LHRCStaker.BalanceHistory[]",
             "numberOfBytes": "32"
           },
-          "t_array(t_struct(NFTInfo)5592_storage)dyn_storage": {
+          "t_array(t_struct(NFTInfo)6191_storage)dyn_storage": {
             "label": "struct NFTInfo[]",
             "numberOfBytes": "32"
           },
@@ -323,11 +392,11 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_array(t_struct(BalanceHistory)5705_storage)dyn_storage)": {
+          "t_mapping(t_address,t_array(t_struct(BalanceHistory)6317_storage)dyn_storage)": {
             "label": "mapping(address => struct LHRCStaker.BalanceHistory[])",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_array(t_struct(NFTInfo)5592_storage)dyn_storage)": {
+          "t_mapping(t_address,t_array(t_struct(NFTInfo)6191_storage)dyn_storage)": {
             "label": "mapping(address => struct NFTInfo[])",
             "numberOfBytes": "32"
           },
@@ -335,7 +404,7 @@
             "label": "mapping(address => bool)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_struct(StakeInfo)5718_storage)": {
+          "t_mapping(t_address,t_struct(StakeInfo)6330_storage)": {
             "label": "mapping(address => struct LHRCStaker.StakeInfo)",
             "numberOfBytes": "32"
           },
@@ -363,7 +432,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(BalanceHistory)5705_storage": {
+          "t_struct(BalanceHistory)6317_storage": {
             "label": "struct LHRCStaker.BalanceHistory",
             "members": [
               {
@@ -381,7 +450,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(NFTInfo)5592_storage": {
+          "t_struct(NFTInfo)6191_storage": {
             "label": "struct NFTInfo",
             "members": [
               {
@@ -441,7 +510,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(StakeInfo)5718_storage": {
+          "t_struct(StakeInfo)6330_storage": {
             "label": "struct LHRCStaker.StakeInfo",
             "members": [
               {
@@ -494,9 +563,9 @@
         }
       }
     },
-    "91d5ee3714f674fa4f13265e688d9ceaa48207d94b0efbd131fd9d8af234e15c": {
-      "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-      "txHash": "0x6242b8d857a41dc2760908acc9a87baad4c65f4c2f4d4eb34a0c8b498aad15ed",
+    "f60c8e8d444ff5675d78f6fa42b00d9748be6561bb940ccbe2a822a78206a9cb": {
+      "address": "0x8438Ad1C834623CfF278AB6829a248E37C2D7E3f",
+      "txHash": "0x545632b411f112817733b6d89db8d32789fa811800c26bfd5b786c62ef391f8f",
       "layout": {
         "storage": [
           {
@@ -609,7 +678,7 @@
             "slot": "401",
             "type": "t_struct(AddressSet)2271_storage",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:49"
+            "src": "contracts\\LHRCStaker.sol:53"
           },
           {
             "label": "amplifiers",
@@ -617,7 +686,7 @@
             "slot": "403",
             "type": "t_mapping(t_address,t_uint8)",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:50"
+            "src": "contracts\\LHRCStaker.sol:54"
           },
           {
             "label": "baseAPY",
@@ -625,7 +694,7 @@
             "slot": "404",
             "type": "t_uint256",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:53"
+            "src": "contracts\\LHRCStaker.sol:57"
           },
           {
             "label": "fee",
@@ -633,7 +702,7 @@
             "slot": "405",
             "type": "t_uint256",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:54"
+            "src": "contracts\\LHRCStaker.sol:58"
           },
           {
             "label": "lockPeriod",
@@ -641,7 +710,7 @@
             "slot": "406",
             "type": "t_uint256",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:56"
+            "src": "contracts\\LHRCStaker.sol:60"
           },
           {
             "label": "stakers",
@@ -649,39 +718,39 @@
             "slot": "407",
             "type": "t_struct(AddressSet)2271_storage",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:58"
+            "src": "contracts\\LHRCStaker.sol:62"
           },
           {
             "label": "stakedNFTs",
             "offset": 0,
             "slot": "409",
-            "type": "t_mapping(t_address,t_array(t_struct(NFTInfo)5592_storage)dyn_storage)",
+            "type": "t_mapping(t_address,t_array(t_struct(NFTInfo)6191_storage)dyn_storage)",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:59"
+            "src": "contracts\\LHRCStaker.sol:63"
           },
           {
             "label": "stakeInfos",
             "offset": 0,
             "slot": "410",
-            "type": "t_mapping(t_address,t_struct(StakeInfo)5718_storage)",
+            "type": "t_mapping(t_address,t_struct(StakeInfo)6330_storage)",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:60"
+            "src": "contracts\\LHRCStaker.sol:64"
           },
           {
             "label": "recentBalances",
             "offset": 0,
             "slot": "411",
-            "type": "t_mapping(t_address,t_array(t_struct(BalanceHistory)5705_storage)dyn_storage)",
+            "type": "t_mapping(t_address,t_array(t_struct(BalanceHistory)6317_storage)dyn_storage)",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:61"
+            "src": "contracts\\LHRCStaker.sol:65"
           },
           {
             "label": "recentLPBalances",
             "offset": 0,
             "slot": "412",
-            "type": "t_mapping(t_address,t_array(t_struct(BalanceHistory)5705_storage)dyn_storage)",
+            "type": "t_mapping(t_address,t_array(t_struct(BalanceHistory)6317_storage)dyn_storage)",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:62"
+            "src": "contracts\\LHRCStaker.sol:66"
           },
           {
             "label": "stakeToken",
@@ -689,7 +758,7 @@
             "slot": "413",
             "type": "t_address",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:64"
+            "src": "contracts\\LHRCStaker.sol:68"
           },
           {
             "label": "lpToken",
@@ -697,15 +766,7 @@
             "slot": "414",
             "type": "t_address",
             "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:65"
-          },
-          {
-            "label": "totalLPBalance",
-            "offset": 0,
-            "slot": "415",
-            "type": "t_uint256",
-            "contract": "LHRCStaker",
-            "src": "contracts\\LHRCStaker.sol:67"
+            "src": "contracts\\LHRCStaker.sol:69"
           }
         ],
         "types": {
@@ -717,11 +778,11 @@
             "label": "bytes32[]",
             "numberOfBytes": "32"
           },
-          "t_array(t_struct(BalanceHistory)5705_storage)dyn_storage": {
+          "t_array(t_struct(BalanceHistory)6317_storage)dyn_storage": {
             "label": "struct LHRCStaker.BalanceHistory[]",
             "numberOfBytes": "32"
           },
-          "t_array(t_struct(NFTInfo)5592_storage)dyn_storage": {
+          "t_array(t_struct(NFTInfo)6191_storage)dyn_storage": {
             "label": "struct NFTInfo[]",
             "numberOfBytes": "32"
           },
@@ -741,11 +802,11 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_array(t_struct(BalanceHistory)5705_storage)dyn_storage)": {
+          "t_mapping(t_address,t_array(t_struct(BalanceHistory)6317_storage)dyn_storage)": {
             "label": "mapping(address => struct LHRCStaker.BalanceHistory[])",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_array(t_struct(NFTInfo)5592_storage)dyn_storage)": {
+          "t_mapping(t_address,t_array(t_struct(NFTInfo)6191_storage)dyn_storage)": {
             "label": "mapping(address => struct NFTInfo[])",
             "numberOfBytes": "32"
           },
@@ -753,7 +814,7 @@
             "label": "mapping(address => bool)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_struct(StakeInfo)5718_storage)": {
+          "t_mapping(t_address,t_struct(StakeInfo)6330_storage)": {
             "label": "mapping(address => struct LHRCStaker.StakeInfo)",
             "numberOfBytes": "32"
           },
@@ -781,7 +842,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(BalanceHistory)5705_storage": {
+          "t_struct(BalanceHistory)6317_storage": {
             "label": "struct LHRCStaker.BalanceHistory",
             "members": [
               {
@@ -799,7 +860,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(NFTInfo)5592_storage": {
+          "t_struct(NFTInfo)6191_storage": {
             "label": "struct NFTInfo",
             "members": [
               {
@@ -859,7 +920,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(StakeInfo)5718_storage": {
+          "t_struct(StakeInfo)6330_storage": {
             "label": "struct LHRCStaker.StakeInfo",
             "members": [
               {

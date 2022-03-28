@@ -48,7 +48,7 @@ describe("Test LiquidityPool contract", function () {
   });
 
   it("Should add liquidity", async function () {
-    await expect(liquidityPool.connect(other1).addLiquidity(100, 200)).to.be.revertedWith("not enough allowance");
+    await expect(liquidityPool.connect(other1).addLiquidity(100, 200)).to.be.revertedWith("not enough allowance token1");
 
     await token1.connect(other1).approve(liquidityPool.address, parseEther("1000"));
     await token2.connect(other1).approve(liquidityPool.address, parseEther("1000"));

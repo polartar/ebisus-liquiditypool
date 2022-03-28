@@ -97,11 +97,11 @@ contract LiquidityPool is ERC20, Ownable {
     function addLiquidity(uint256 tOneAmt, uint256 tTwoAmt) public payable {
         require(
             tokenOne.allowance(msg.sender, address(this)) >= tOneAmt,
-            "not enough allowance"
+            "not enough allowance token1"
         );
         require(
             tokenTwo.allowance(msg.sender, address(this)) >= tOneAmt,
-            "not enough allowance"
+            "not enough allowance token2"
         );
         require(tOneAmt != 0 && tTwoAmt != 0, "need non-zero values");
         uint256 rate = getRate(address(tokenOne));
@@ -222,5 +222,11 @@ contract LiquidityPool is ERC20, Ownable {
 
      function getReserves() public view returns(uint256, uint256) {
         return (tokenOneCnt, tokenTwoCnt);
+    }
+
+    function getSharedAmounts() public view returns(uint256, uint256) {
+        uint256 tokenOneShare = tokenOneCnt.mulDiv(balanceOf(msg.sender), totalSupply());
+        uint256 tokenTwoShare = tokenTwoCnt.mulDiv(balanceOf(msg.sender), totalSupply());
+        return (tokenOneShare, tokenTwoShare);
     }
 }
