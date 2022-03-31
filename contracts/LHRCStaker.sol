@@ -95,15 +95,26 @@ UUPSUpgradeable {
     }
     function initAmplifies() private {
         //testnet Barn, PONY, HORSE, Skybox
-         ampliyNFTs.add(0xEd8d78449402f44C8e9B0a38de785D0CaD73F76e);
-         ampliyNFTs.add(0xEd8d78449402f44C8e9B0a38de785D0CaD73F76e);
+         ampliyNFTs.add(0x000732Ddc0f7208b2400944d4a7296bc001aE866);
          ampliyNFTs.add(0xEd8d78449402f44C8e9B0a38de785D0CaD73F76e);
          ampliyNFTs.add(0x3fc2bac73bC7ceFA6Efb00a49dD646841f70240D);
+         ampliyNFTs.add(0xEa4BC6Cc245F73b9E60e33943632D6001bf73ee5);
 
-         amplifiers[0xEd8d78449402f44C8e9B0a38de785D0CaD73F76e] = 2;
+         amplifiers[0x000732Ddc0f7208b2400944d4a7296bc001aE866] = 2;
          amplifiers[0xEd8d78449402f44C8e9B0a38de785D0CaD73F76e] = 3;
          amplifiers[0x3fc2bac73bC7ceFA6Efb00a49dD646841f70240D] = 4;
-         amplifiers[0x3fc2bac73bC7ceFA6Efb00a49dD646841f70240D] = 10;
+         amplifiers[0xEa4BC6Cc245F73b9E60e33943632D6001bf73ee5] = 10;
+        
+        // //mainnet Barn, PONY, HORSE, Skybox
+        //  ampliyNFTs.add(0x8449821E8334D79e455223739D41eeF55e36583e);
+        //  ampliyNFTs.add(0x7d0259070B5f513CA543afb6a906d42af5884B1B);
+        //  ampliyNFTs.add(0xD504ed871d33dbD4f56f523A37dceC86Ee918cb6);
+        //  ampliyNFTs.add(0x96e99d6539bA2a816DEe7239DCDdC48be52835E4);
+
+        //  amplifiers[0x8449821E8334D79e455223739D41eeF55e36583e] = 2;
+        //  amplifiers[0x7d0259070B5f513CA543afb6a906d42af5884B1B] = 3;
+        //  amplifiers[0xD504ed871d33dbD4f56f523A37dceC86Ee918cb6] = 4;
+        //  amplifiers[0x96e99d6539bA2a816DEe7239DCDdC48be52835E4] = 10;
     }
     function _authorizeUpgrade(address newImplementation) internal onlyRole(UPGRADER_ROLE) override { }
 

@@ -21,8 +21,6 @@ contract LiquidityPool is ERC20, Ownable {
     uint256 public tokenOneCnt;
     uint256 public tokenTwoCnt;
 
-    // mapping(address => uint256) public liqTokenMap;
-    // address[] private addressArray;
     EnumerableSet.AddressSet private addressArray;
 
     mapping(address => uint256) public tokenOneFees;

@@ -1,11 +1,11 @@
 const hre = require("hardhat");
 
 async function main() {
-  const { market, staker } = hre.config.networks[hre.network.name];
+  const { LHRC } = hre.config.networks[hre.network.name];
   const { upgrades } = hre;
   // We get the contract to deploy
   const LHRCStaker = await ethers.getContractFactory("LHRCStaker");
-  const lhrcStaker = await upgrades.deployProxy(LHRCStaker, [market, staker], {kind : "uups"});
+  const lhrcStaker = await upgrades.deployProxy(LHRCStaker, [LHRC], {kind : "uups"});
 
   //testnet 
 
