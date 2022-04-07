@@ -22,17 +22,7 @@ interface ILHRCStaker is IERC1155ReceiverUpgradeable {
 
     function isBoostNFT(address _nft) external returns(bool);
     function getAmplifyNFT(address _nft) external returns(uint256);
-    function getCurrentRewards(address _user) external returns(uint256);
+    function getCurrentRewards(address _user) external view returns(uint256);
     function getAPY() external returns(uint256);
-    function getStakedNFTs(address _user) external returns(NFTInfo[] memory);
-    //  function stake(uint256 amount) external;
-
-    //  function unstake(uint256 amount) external;
-
-    //  function amountStaked(address staker) external view returns (uint256);
-
-    //  function totalStaked() external view returns (uint256);
-
-    //  function currentStaked() external view returns (address[] memory stakers, uint256[] memory amounts);
-
+    function getStakedNFTs(address _user, address _multipliedAddress) external returns(NFTInfo[] memory);
 }

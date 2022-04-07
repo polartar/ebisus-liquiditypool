@@ -65,6 +65,7 @@ describe("Test LHRCStaker contract", function () {
     await barnNFT.connect(admin).setApprovalForAll(LHRCStaker.address, true);
 
     await stakeToken.connect(admin).approve(LHRCStaker.address, parseEther("1000"));
+    await stakeToken.transfer(LHRCStaker.address, parseEther("1000"));
   })
 
   it('should only let admin upgrade', async () => {
@@ -102,12 +103,12 @@ describe("Test LHRCStaker contract", function () {
     expect(await ponyNFT.ownerOf(1)).to.be.equal(admin.address);
    
     // staked and emit event
-    await expect(LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1)).to.emit(LHRCStaker, "NFTStaked").withArgs(admin.address, ponyNFT.address, 1);
+    await expect(LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1, stakeToken.address)).to.emit(LHRCStaker, "NFTStaked").withArgs(admin.address, ponyNFT.address, 1);
 
     // check owner of nft
-    await expect(LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1)).to.be.revertedWith("not nft owner");
+    await expect(LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1, stakeToken.address)).to.be.revertedWith("not nft owner");
 
-    const stakedNFTs = await LHRCStaker.getStakedNFTs(admin.address);
+    const stakedNFTs = await LHRCStaker.getStakedNFTs(admin.address, stakeToken.address);
 
     expect(stakedNFTs[0].nft).to.be.equal(ponyNFT.address)
     expect(stakedNFTs[0].id).to.be.equal(1)
@@ -117,32 +118,32 @@ describe("Test LHRCStaker contract", function () {
 
   it("Should not stake more than max allowed 4", async function () {
     await LHRCStaker.connect(admin).registerAmplifyNFT(ponyNFT.address, 4);
-    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1);
-    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 3);
-    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 4);
-    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 5);
-    await expect(LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 6)).to.be.revertedWith("exceed max nfts");
+    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1, stakeToken.address);
+    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 3, stakeToken.address);
+    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 4, stakeToken.address);
+    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 5, stakeToken.address);
+    await expect(LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 6, stakeToken.address)).to.be.revertedWith("exceed max nfts");
   });
 
   it("Should not stake unsupported nft", async function () {
-    await expect(LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1)).to.be.revertedWith("not unsupported nft");
+    await expect(LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1, stakeToken.address)).to.be.revertedWith("not unsupported nft");
   });
   
   it("Should unstake Boost NFT", async function () {
     // when none staked tokens
-    await expect(LHRCStaker.connect(admin).unstakeNFT(ponyNFT.address, 1)).to.be.revertedWith("none staked");
+    await expect(LHRCStaker.connect(admin).unstakeNFT(ponyNFT.address, 1, stakeToken.address)).to.be.revertedWith("none staked");
 
     await LHRCStaker.connect(admin).registerAmplifyNFT(ponyNFT.address, 4);
-    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1);
-    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 3);
+    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1, stakeToken.address);
+    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 3, stakeToken.address);
 
     // when not exist
-    await expect(LHRCStaker.connect(admin).unstakeNFT(ponyNFT.address, 2)).to.be.revertedWith("no exists");
+    await expect(LHRCStaker.connect(admin).unstakeNFT(ponyNFT.address, 2, stakeToken.address)).to.be.revertedWith("no exists");
 
-    await expect(LHRCStaker.connect(admin).unstakeNFT(ponyNFT.address, 1)).to.be.revertedWith("locked NFT");
+    await expect(LHRCStaker.connect(admin).unstakeNFT(ponyNFT.address, 1, stakeToken.address)).to.be.revertedWith("locked NFT");
     // when lock
 
-    let stakedNFTs = await LHRCStaker.getStakedNFTs(admin.address);
+    let stakedNFTs = await LHRCStaker.getStakedNFTs(admin.address, stakeToken.address);
     expect(stakedNFTs.length).to.be.equal(2);
     expect(await ponyNFT.ownerOf(1)).to.be.equal(LHRCStaker.address);
 
@@ -150,11 +151,11 @@ describe("Test LHRCStaker contract", function () {
     await ethers.provider.send("evm_mine");
 
     // unstake and emit event
-    await expect(LHRCStaker.connect(admin).unstakeNFT(ponyNFT.address, 1)).to.emit(LHRCStaker, "NFTUnStaked").withArgs(admin.address, ponyNFT.address, 1);
+    await expect(LHRCStaker.connect(admin).unstakeNFT(ponyNFT.address, 1, stakeToken.address)).to.emit(LHRCStaker, "NFTUnStaked").withArgs(admin.address, ponyNFT.address, 1);
     // refund nft
     expect(await ponyNFT.ownerOf(1)).to.be.equal(admin.address);
 
-    stakedNFTs = await LHRCStaker.getStakedNFTs(admin.address);
+    stakedNFTs = await LHRCStaker.getStakedNFTs(admin.address, stakeToken.address);
     expect(stakedNFTs.length).to.be.equal(1);
     expect(stakedNFTs[0].nft).to.be.equal(ponyNFT.address)
     expect(stakedNFTs[0].id).to.be.equal(3)
@@ -190,7 +191,7 @@ describe("Test LHRCStaker contract", function () {
 
     await ethers.provider.send("evm_increaseTime", [48 * 3600+1]);
     await ethers.provider.send("evm_mine");
-    await expect(() => LHRCStaker.connect(admin).unstake(stakeToken.address, parseEther("100"))).to.changeTokenBalance(stakeToken, admin, parseEther("95"));
+    await expect(() => LHRCStaker.connect(admin).unstake(stakeToken.address, parseEther("100"))).to.changeTokenBalance(stakeToken, admin, parseEther("100"));
 
     let userInfo = await LHRCStaker.getUserInfo(admin.address);
     expect(userInfo.totalAmount).to.be.equal(parseEther("100"));
@@ -226,7 +227,7 @@ describe("Test LHRCStaker contract", function () {
     await ethers.provider.send("evm_increaseTime", [48 * 3600+1]);
     await ethers.provider.send("evm_mine");
 
-    await expect(() => LHRCStaker.connect(admin).unstake(lpToken.address, parseEther("50"))).to.changeTokenBalance(lpToken, admin, parseEther("47.5"));  
+    await expect(() => LHRCStaker.connect(admin).unstake(lpToken.address, parseEther("50"))).to.changeTokenBalance(lpToken, admin, parseEther("50"));  
     await expect(LHRCStaker.connect(admin).unstake(lpToken.address, parseEther("50"))).to.emit(LHRCStaker, "LPUnStaked").withArgs(admin.address, parseEther("50"));
 
     let userInfo = await LHRCStaker.getUserInfo(admin.address);
