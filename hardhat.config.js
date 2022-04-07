@@ -39,6 +39,7 @@ module.exports = {
       gasPrice: 5000000000000,
       membership: '0x8d9232Ebc4f06B7b8005CCff0ca401675ceb25F5',
       LHRC: '0x6e7519C6105015d2c969aCC96545DC76583fBfCE',
+      Cro: '',
     },
     cronos_testnet : {
       url : "https://cronos-testnet-3.crypto.org:8545/",
@@ -47,6 +48,7 @@ module.exports = {
       gasPrice: 5000000000000,
       membership: '0x3F1590A5984C89e6d5831bFB76788F3517Cdf034',
       LHRC: '0xEfD450027bD0EE84AfaFbC75f5A80C367eFBF651',
+      Cro: '',
     }
   },
   paths: {

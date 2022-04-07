@@ -85,7 +85,7 @@ UUPSUpgradeable {
 
         stakeToken = _stakeToken;
         lockPeriod = 48 hours;
-        fee = 500;
+        fee = 50;
         baseAPY = 20;
         initAmplifies();        
      }
