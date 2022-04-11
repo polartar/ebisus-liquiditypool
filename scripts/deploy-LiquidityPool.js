@@ -2,7 +2,7 @@ const hre = require("hardhat");
 
 async function main() {
   // We get the contract to deploy
-  const { Cro, LHRC } = hre.config.networks[hre.network.name];
+  const { LHRC } = hre.config.networks[hre.network.name];
   const LiquidityPool = await ethers.getContractFactory("LiquidityPool");
   const liquidityPool = await LiquidityPool.deploy(LHRC, 100);
 

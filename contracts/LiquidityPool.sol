@@ -14,7 +14,6 @@ contract LiquidityPool is ERC20, Ownable {
     using SafeMathLite for uint256;
     using SafePct for uint256;
 
-    IERC20 public tokenOne;
     IERC20 public tokenTwo;
     uint256 public basisFee;
 
@@ -35,11 +34,9 @@ contract LiquidityPool is ERC20, Ownable {
     event SwapDone(address _address);
 
     constructor(
-        address tokenAddrOne,
         address tokenAddrTwo,
         uint256 _basisFee
     ) ERC20("Layzy-Cro", "LazyHorse LP") {
-        tokenOne = IERC20(tokenAddrOne);
         tokenTwo = IERC20(tokenAddrTwo);
         basisFee = _basisFee;
     }
@@ -57,62 +54,46 @@ contract LiquidityPool is ERC20, Ownable {
         }
     }
 
-    function initPool(uint256 tOneAmt, uint256 tTwoAmt) public onlyOwner payable {
+    function initPool(uint256 tTwoAmt) public onlyOwner payable {
         require(totalSupply() == 0, "already initialized pool");
-        require(tOneAmt != 0 && tTwoAmt !=0 , "can't zero amount");
+        require(msg.value != 0 && tTwoAmt !=0 , "can't zero amount");
 
         require(
-            tokenOne.allowance(msg.sender, address(this)) >= tOneAmt,
+            tokenTwo.allowance(msg.sender, address(this)) >= tTwoAmt,
             "not enough allowance"
         );
-        require(
-            tokenTwo.allowance(msg.sender, address(this)) >= tOneAmt,
-            "not enough allowance"
-        );
-        tokenOne.transferFrom(msg.sender, address(this), tOneAmt);
         tokenTwo.transferFrom(msg.sender, address(this), tTwoAmt);
  
-        tokenOneCnt = tokenOne.balanceOf(address(this));
+        tokenOneCnt = msg.value;
         tokenTwoCnt = tokenTwo.balanceOf(address(this));
 
         addressArray.add(msg.sender);
-        uint256 lpAmount = sqrt(tOneAmt.mul(tTwoAmt));
+        uint256 lpAmount = sqrt(tokenOneCnt.mul(tTwoAmt));
         _mint(msg.sender, lpAmount);
 
         emit NewPool(msg.sender, lpAmount);
     }
 
-    function getRate(address _token ) public view returns(uint256) {
-        if (_token == address(tokenOne)) {
-            return tokenOneCnt * scale / tokenTwoCnt ;
-        } else if (_token == address(tokenTwo)) {
-            return tokenTwoCnt  * scale / tokenOneCnt;
-        } else {
-            revert("incorrect token");
-        }
+    function getRate() public view returns(uint256) {
+        return tokenOneCnt * scale / tokenTwoCnt ;
     }
 
-    function addLiquidity(uint256 tOneAmt, uint256 tTwoAmt) public payable {
+    function addLiquidity(uint256 tTwoAmt) public payable {
         require(
-            tokenOne.allowance(msg.sender, address(this)) >= tOneAmt,
-            "not enough allowance token1"
-        );
-        require(
-            tokenTwo.allowance(msg.sender, address(this)) >= tOneAmt,
+            tokenTwo.allowance(msg.sender, address(this)) >= tTwoAmt,
             "not enough allowance token2"
         );
-        require(tOneAmt != 0 && tTwoAmt != 0, "need non-zero values");
-        uint256 rate = getRate(address(tokenOne));
+        require(msg.value != 0 && tTwoAmt != 0, "need non-zero values");
+        uint256 rate = getRate();
         
-        if (scale * tOneAmt != rate * tTwoAmt) {
+        if (scale * msg.value != rate * tTwoAmt) {
             revert("amounts not matched");
         }
 
-        tokenOne.transferFrom(msg.sender, address(this), tOneAmt);
         tokenTwo.transferFrom(msg.sender, address(this), tTwoAmt);
-        tokenOneCnt = tokenOneCnt.add(tOneAmt);
+        tokenOneCnt = tokenOneCnt.add(msg.value);
         tokenTwoCnt = tokenTwoCnt.add(tTwoAmt);
-        uint256 lpAmount = sqrt(tOneAmt.mul(tTwoAmt));
+        uint256 lpAmount = sqrt(msg.value.mul(tTwoAmt));
         
         addressArray.add(msg.sender);
         
@@ -121,7 +102,7 @@ contract LiquidityPool is ERC20, Ownable {
     }
 
     // 0 to 100 is a invariant -- percent of holdings
-    function removeLiquidity(uint256 percent) public payable {
+    function removeLiquidity(uint256 percent) external {
         require(0 < percent && percent <= 100, "invalid removal percent");
         uint256 balance = balanceOf(msg.sender);
 
@@ -133,7 +114,8 @@ contract LiquidityPool is ERC20, Ownable {
 
         _burn(msg.sender, payout);
 
-        tokenOne.transfer(msg.sender, tokenOnePayout);
+        (bool success, ) = payable(msg.sender).call{value: tokenOnePayout}("");
+        require(success, "Transfer failed.");
         tokenTwo.transfer(msg.sender, tokenTwoPayout);
 
         tokenOneCnt = tokenOneCnt.sub(tokenOnePayout);
@@ -145,22 +127,18 @@ contract LiquidityPool is ERC20, Ownable {
         emit LessLiquidity(msg.sender);
     }
 
-    function swapOutOne(uint256 tokenAmtOne) public payable {
+    function swapOutOne() public payable {
+        uint256 tokenAmtOne = msg.value;
         require(tokenAmtOne > 0, "invalid quantity");
-        require(
-            tokenOne.allowance(msg.sender, address(this)) >= tokenAmtOne,
-            "not enough allowance"
-        );
-
+        
         uint256 fee = tokenAmtOne.mulDiv(basisFee, 10000);
         uint256 swapIn = tokenAmtOne.sub(fee);
-        uint256 rate = getRate(address(tokenTwo));
-        uint256 tokenOut = swapIn.mulDiv(rate, scale);
+        uint256 rate = getRate();
+        uint256 tokenOut = swapIn.div(rate).div(scale);
 
         if (tokenOut > tokenTwoCnt) {
             revert("not enough funds");
         }
-        tokenOne.transferFrom(msg.sender, address(this), tokenAmtOne);
         tokenTwo.transfer(msg.sender, tokenOut);
         tokenOneCnt = tokenOneCnt.add(swapIn);
         tokenTwoCnt = tokenTwoCnt.sub(tokenOut);
@@ -176,7 +154,7 @@ contract LiquidityPool is ERC20, Ownable {
         emit SwapDone(msg.sender);
     }
 
-    function swapOutTwo(uint256 tokenAmtTwo) public payable {
+    function swapOutTwo(uint256 tokenAmtTwo) external {
         require(tokenAmtTwo > 0, "invalid quantity");
         require(
             tokenTwo.allowance(msg.sender, address(this)) >= tokenAmtTwo,
@@ -185,14 +163,15 @@ contract LiquidityPool is ERC20, Ownable {
 
         uint256 fee = tokenAmtTwo.mulDiv(basisFee, 10000);
         uint256 swapIn = tokenAmtTwo.sub(fee);
-        uint256 rate = getRate(address(tokenOne));
+        uint256 rate = getRate();
         uint256 tokenOut = rate.mulDiv(swapIn ,scale);
 
         if (tokenOut > tokenOneCnt) {
             revert("not enough funds");
         }
         tokenTwo.transferFrom(msg.sender, address(this), tokenAmtTwo);
-        tokenOne.transfer(msg.sender, tokenOut);
+        (bool success, ) = payable(msg.sender).call{value: tokenOut}("");
+        require(success, "Transfer failed.");
         tokenOneCnt = tokenOneCnt.sub(tokenOut);
         tokenTwoCnt = tokenTwoCnt.add(swapIn);
         
@@ -208,23 +187,19 @@ contract LiquidityPool is ERC20, Ownable {
         emit SwapDone(msg.sender);
     }
 
-    function payoutRewards() public payable {
+    function payoutRewards() external payable {
         uint256 tokenOnePayout = tokenOneFees[msg.sender];
         uint256 tokenTwoPayout = tokenTwoFees[msg.sender];
         tokenOneFees[msg.sender] = 0;
         tokenTwoFees[msg.sender] = 0;
 
-        tokenOne.transfer(msg.sender, tokenOnePayout);
+        (bool success, ) = payable(msg.sender).call{value: tokenOnePayout}("");
+        require(success, "Transfer failed.");
+
         tokenTwo.transfer(msg.sender, tokenTwoPayout);
     }
 
-     function getReserves() public view returns(uint256, uint256) {
+     function getReserves() external view returns(uint256, uint256) {
         return (tokenOneCnt, tokenTwoCnt);
-    }
-
-    function getSharedAmounts() public view returns(uint256, uint256) {
-        uint256 tokenOneShare = tokenOneCnt.mulDiv(balanceOf(msg.sender), totalSupply());
-        uint256 tokenTwoShare = tokenTwoCnt.mulDiv(balanceOf(msg.sender), totalSupply());
-        return (tokenOneShare, tokenTwoShare);
     }
 }

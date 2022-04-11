@@ -173,6 +173,7 @@ UUPSUpgradeable {
        uint256 lpAmplify = calculateAmplify(msg.sender, lpToken);
        uint256 period = block.timestamp - stakeInfos[_user].lastChecked;
        uint256 pendingBalance;
+       
        if (stakeInfos[_user].totalAmount > 0) {
            pendingBalance = stakeInfos[_user].totalAmount.mul(tokenAmplify).mulDiv(baseAPY, 100).mulDiv(period, 365 days);
        }
@@ -183,6 +184,7 @@ UUPSUpgradeable {
             uint256 pairedAmount = LHRCAmount.mulDiv(stakeInfos[_user].totalLPAmount, lpTotal);
            pendingBalance = pendingBalance + pairedAmount.mul(lpAmplify).mulDiv(period, 365 days);
        }
+       
        return pendingBalance;
     }
 
@@ -358,6 +360,7 @@ UUPSUpgradeable {
         }
 
         stakeInfos[msg.sender] = _user;
+
         bool success = IERC20(_token).transfer(msg.sender, _amount);
         require(success);
     }

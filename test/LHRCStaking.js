@@ -47,11 +47,11 @@ describe("Test LHRCStaker contract", function () {
     await croToken.deployed();
     await croToken.transfer(admin.address, parseEther("1000"));
 
-    lpToken = await lpFactory.connect(admin).deploy(croToken.address, stakeToken.address, 100);
+    lpToken = await lpFactory.connect(admin).deploy(stakeToken.address, 100);
     await lpToken.deployed();
     await croToken.connect(admin).approve(lpToken.address, parseEther("100"));
     await stakeToken.connect(admin).approve(lpToken.address, parseEther("400"));
-    await lpToken.connect(admin).initPool(parseEther("100"), parseEther("400"));
+    await lpToken.connect(admin).initPool(parseEther("400"), {value: parseEther("100")});
  
     LHRCStaker = await upgrades.deployProxy(LHRCStakerFactory, [stakeToken.address], { kind : "uups" });
     await LHRCStaker.deployed();
@@ -191,7 +191,13 @@ describe("Test LHRCStaker contract", function () {
 
     await ethers.provider.send("evm_increaseTime", [48 * 3600+1]);
     await ethers.provider.send("evm_mine");
-    await expect(() => LHRCStaker.connect(admin).unstake(stakeToken.address, parseEther("100"))).to.changeTokenBalance(stakeToken, admin, parseEther("100"));
+    
+    // await expect(() => LHRCStaker.connect(admin).unstake(stakeToken.address, parseEther("100"))).to.changeTokenBalance(stakeToken, admin, parseEther("100"));
+    let initialBalance = await stakeToken.balanceOf(admin.address);
+    await LHRCStaker.connect(admin).unstake(stakeToken.address, parseEther("100"))
+    let currentBalance = await stakeToken.balanceOf(admin.address);
+    // LHRC 200 * 20% *2/365 = 0.219
+    await expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("100.2"), parseEther("100.3"));
 
     let userInfo = await LHRCStaker.getUserInfo(admin.address);
     expect(userInfo.totalAmount).to.be.equal(parseEther("100"));
@@ -213,7 +219,12 @@ describe("Test LHRCStaker contract", function () {
     await expect (LHRCStaker.connect(admin).unstake(stakeToken.address, parseEther("200"))).to.be.revertedWith("token locked");
     await ethers.provider.send("evm_increaseTime", [24 * 3600]);
     await ethers.provider.send("evm_mine");
-    await expect(() => LHRCStaker.connect(admin).unstake(stakeToken.address, parseEther("200"))).to.changeTokenBalance(stakeToken, admin, parseEther("190"));
+    // await expect(() => LHRCStaker.connect(admin).unstake(stakeToken.address, parseEther("200"))).to.changeTokenBalance(stakeToken, admin, parseEther("190"));
+    initialBalance = await stakeToken.balanceOf(admin.address);
+    await LHRCStaker.connect(admin).unstake(stakeToken.address, parseEther("200"))
+    currentBalance = await stakeToken.balanceOf(admin.address);
+    // LHRC 200 * 20% *2/365 = 0.219
+    await expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("200.2"), parseEther("200.3"));
   });
 
   it("Should unstake LP", async function () {
@@ -246,7 +257,7 @@ describe("Test LHRCStaker contract", function () {
     await expect (LHRCStaker.connect(admin).unstake(lpToken.address, parseEther("100"))).to.be.revertedWith("token locked");
     await ethers.provider.send("evm_increaseTime", [24 * 3600 + 1]);
     await ethers.provider.send("evm_mine");
-    await expect(() => LHRCStaker.connect(admin).unstake(lpToken.address, parseEther("100"))).to.changeTokenBalance(lpToken, admin, parseEther("95"));
+    await expect(() => LHRCStaker.connect(admin).unstake(lpToken.address, parseEther("100"))).to.changeTokenBalance(lpToken, admin, parseEther("100"));
   });
 
   it("Should harvest when only LHRC token staked", async function () {
@@ -260,14 +271,14 @@ describe("Test LHRCStaker contract", function () {
     await LHRCStaker.connect(admin).harvest();
     let currentBalance = await stakeToken.balanceOf(admin.address);
 
-    expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("39.9"), parseEther("40.1"));
+    expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("39.8"), parseEther("40"));
     await expect(LHRCStaker.connect(admin).harvest()).to.be.revertedWith("already harvested");
 
     await LHRCStaker.connect(admin).registerAmplifyNFT(ponyNFT.address, 2);
     await LHRCStaker.connect(admin).registerAmplifyNFT(barnNFT.address, 3);
-    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1);
-    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 3);
-    await LHRCStaker.connect(admin).stakeNFT(barnNFT.address, 1);
+    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1, stakeToken.address);
+    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 3, lpToken.address);
+    await LHRCStaker.connect(admin).stakeNFT(barnNFT.address, 1, stakeToken.address);
 
     // half year pass
     await ethers.provider.send("evm_increaseTime", [15768000 - 1]);
@@ -275,14 +286,13 @@ describe("Test LHRCStaker contract", function () {
     initialBalance = await stakeToken.balanceOf(admin.address);
     await LHRCStaker.connect(admin).harvest();
     currentBalance = await stakeToken.balanceOf(admin.address);
-    expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("139.9"), parseEther("140.1"));
+    expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("99.5"), parseEther("99.51"));
 
     // half year pass
     await ethers.provider.send("evm_increaseTime", [15768000]);
     await ethers.provider.send("evm_mine");
-    await expect(LHRCStaker.connect(admin).harvest()).to.be.revertedWith("not enough funds");
-
-    await LHRCStaker.connect(admin).unstakeNFT(ponyNFT.address, 3);
+    
+    await LHRCStaker.connect(admin).unstakeNFT(ponyNFT.address, 1, stakeToken.address);
 
     // 1 year pass
     await stakeToken.transfer(LHRCStaker.address, parseEther("1000"));
@@ -292,7 +302,7 @@ describe("Test LHRCStaker contract", function () {
     initialBalance = await stakeToken.balanceOf(admin.address);
     await LHRCStaker.connect(admin).harvest();
     currentBalance = await stakeToken.balanceOf(admin.address);
-    expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("339.9"), parseEther("340.1"));
+    expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("119.4"), parseEther("119.41"));
   });
 
   it("Should harvest when lptoken and lhrc staked", async function () {
@@ -319,14 +329,14 @@ describe("Test LHRCStaker contract", function () {
     let currentBalance = await stakeToken.balanceOf(admin.address);
 
     // LHRC 20% + LP 100%  = 40 + 200
-    expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("239.9"), parseEther("240.1"));
+    expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("238.80"), parseEther("238.81"));
     await expect(LHRCStaker.connect(admin).harvest()).to.be.revertedWith("already harvested");
 
     await LHRCStaker.connect(admin).registerAmplifyNFT(ponyNFT.address, 2);
     await LHRCStaker.connect(admin).registerAmplifyNFT(barnNFT.address, 3);
-    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1);
-    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 3);
-    await LHRCStaker.connect(admin).stakeNFT(barnNFT.address, 1);
+    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1, stakeToken.address);
+    await LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 3, lpToken.address);
+    await LHRCStaker.connect(admin).stakeNFT(barnNFT.address, 1, stakeToken.address);
 
     // half year pass
     await ethers.provider.send("evm_increaseTime", [15768000 - 1]);
@@ -334,8 +344,23 @@ describe("Test LHRCStaker contract", function () {
     initialBalance = await stakeToken.balanceOf(admin.address);
     await LHRCStaker.connect(admin).harvest();
     currentBalance = await stakeToken.balanceOf(admin.address);
-    // LHRC 140% /2 + LP 700% /2 = 140 + 700
-    await expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("839.9"), parseEther("840.1"));
+    // LHRC 100% /2 + LP 200% /2 = 100 + 200
+    await expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("298.50"), parseEther("298.51"));
   });
+
+  it("Should take 0.5% fee", async function () {
+    await LHRCStaker.connect(admin).stake(stakeToken.address, parseEther("600"));
+    
+    // 1 year pass
+    await ethers.provider.send("evm_increaseTime", [31536000]);
+    await ethers.provider.send("evm_mine");
+    let initialBalance = await stakeToken.balanceOf(admin.address);
+    // await expect(() => LHRCStaker.connect(admin).harvest()).to.be.changeTokenBalance(stakeToken, admin, parseEther("40"))
+    await LHRCStaker.connect(admin).harvest();
+    let currentBalance = await stakeToken.balanceOf(admin.address);
+
+    expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("119.40"), parseEther("119.41"));
+  });
+
 }); 
 
