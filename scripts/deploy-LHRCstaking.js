@@ -7,7 +7,7 @@ async function main() {
   const LHRCStaker = await ethers.getContractFactory("LHRCStaker");
   const lhrcStaker = await upgrades.deployProxy(LHRCStaker, [LHRC], {kind : "uups"});
 
-  //testnet 
+  //testnet 0xDe4c3290f6a1b4658983Bd5c9e717C4611C47DE4
 
   await lhrcStaker.deployed();
   console.log("lhrcStaker deployed to:", lhrcStaker.address); 
