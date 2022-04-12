@@ -4,7 +4,7 @@ async function main() {
   // We get the contract to deploy
   const { LHRC } = hre.config.networks[hre.network.name];
   const LiquidityPool = await ethers.getContractFactory("LiquidityPool");
-  const liquidityPool = await LiquidityPool.deploy(LHRC, 100);
+  const liquidityPool = await LiquidityPool.deploy(LHRC, 30);
 
   //testnet 
 

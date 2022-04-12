@@ -14,7 +14,7 @@ describe("Test LHRCStaker contract", function () {
   let barnNFT;
   let stakeToken;
   let lpToken;
-  let croToken;
+
   let deployer, admin, other;
   before(async() => {
     accounts = await ethers.getSigners();
@@ -43,13 +43,8 @@ describe("Test LHRCStaker contract", function () {
     await stakeToken.deployed();
     await stakeToken.transfer(admin.address, parseEther("1000"));
    
-    croToken = await mockERC20Factory.deploy("Cro", "Cro");
-    await croToken.deployed();
-    await croToken.transfer(admin.address, parseEther("1000"));
-
     lpToken = await lpFactory.connect(admin).deploy(stakeToken.address, 100);
     await lpToken.deployed();
-    await croToken.connect(admin).approve(lpToken.address, parseEther("100"));
     await stakeToken.connect(admin).approve(lpToken.address, parseEther("400"));
     await lpToken.connect(admin).initPool(parseEther("400"), {value: parseEther("100")});
  
@@ -309,11 +304,10 @@ describe("Test LHRCStaker contract", function () {
     // deposite 1000 LHRC
     await stakeToken.transfer(LHRCStaker.address, parseEther("1000"));
 
-    await croToken.approve(lpToken.address, parseEther("500"));
     await stakeToken.approve(lpToken.address, parseEther("500"));
     await stakeToken.connect(admin).approve(LHRCStaker.address, parseEther("500"));
     
-    await lpToken.connect(deployer).addLiquidity(parseEther("25"), parseEther("100"));
+    await lpToken.connect(deployer).addLiquidity(parseEther("100"), {value: parseEther("25")});
     await lpToken.approve(LHRCStaker.address, parseEther("200"));
 
 
@@ -361,6 +355,5 @@ describe("Test LHRCStaker contract", function () {
 
     expect(currentBalance.sub(initialBalance)).to.be.within(parseEther("119.40"), parseEther("119.41"));
   });
-
 }); 
 
