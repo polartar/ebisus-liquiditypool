@@ -74,8 +74,12 @@ contract LiquidityPool is ERC20, Ownable {
         emit NewPool(msg.sender, lpAmount);
     }
 
-    function getRate() public view returns(uint256) {
+    function getRateForToken() public view returns(uint256) {
         return tokenOneCnt * scale / tokenTwoCnt ;
+    }
+
+    function getRateForCro() public view returns(uint256) {
+        return tokenTwoCnt * scale / tokenOneCnt ;
     }
 
     function addLiquidity(uint256 tTwoAmt) public payable {
@@ -84,7 +88,7 @@ contract LiquidityPool is ERC20, Ownable {
             "not enough allowance token2"
         );
         require(msg.value != 0 && tTwoAmt != 0, "need non-zero values");
-        uint256 rate = getRate();
+        uint256 rate = getRateForToken();
         
         if (scale * msg.value != rate * tTwoAmt) {
             revert("amounts not matched");
@@ -127,15 +131,31 @@ contract LiquidityPool is ERC20, Ownable {
         emit LessLiquidity(msg.sender);
     }
 
+    function getPriceImpacForCro(uint256 _amount) public view returns(uint256) {
+        uint256 newTokenAmount = tokenOneCnt.mulDiv(tokenTwoCnt, tokenOneCnt.add(_amount));
+        uint256 croPerToken = _amount.mulDiv(scale, tokenTwoCnt - newTokenAmount);
+        uint256 rate = getRateForToken();
+        uint256 priceImpact = (croPerToken.sub(rate)).mulDiv(100, rate);
+        return priceImpact;
+    }
+
+     function getPriceImpacForToken(uint256 _amount) public view returns(uint256) {
+        uint256 newCroAmount = tokenTwoCnt.mulDiv(tokenOneCnt, tokenTwoCnt.add(_amount));
+        uint256 tokenPerCro = _amount.mulDiv(scale, tokenOneCnt - newCroAmount);
+        uint256 rate = getRateForCro();
+        uint256 priceImpact = (tokenPerCro.sub(rate)).mulDiv(100, rate);
+        return priceImpact;
+    }
+
     function swapOutOne() public payable {
         uint256 tokenAmtOne = msg.value;
         require(tokenAmtOne > 0, "invalid quantity");
         
         uint256 fee = tokenAmtOne.mulDiv(basisFee, 10000);
         uint256 swapIn = tokenAmtOne.sub(fee);
-        uint256 rate = getRate();
-        uint256 tokenOut = swapIn.div(rate).mul(scale);
-        
+        uint256 priceImpact = getPriceImpacForCro(msg.value);
+        uint256 rate = getRateForCro();
+        uint256 tokenOut = swapIn.mulDiv(rate, scale).mulDiv(10000 - priceImpact, 10000);
         if (tokenOut > tokenTwoCnt) {
             revert("not enough funds");
         }
@@ -163,8 +183,9 @@ contract LiquidityPool is ERC20, Ownable {
 
         uint256 fee = tokenAmtTwo.mulDiv(basisFee, 10000);
         uint256 swapIn = tokenAmtTwo.sub(fee);
-        uint256 rate = getRate();
-        uint256 tokenOut = rate.mulDiv(swapIn ,scale);
+        uint256 priceImpact = getPriceImpacForToken(tokenAmtTwo);
+        uint256 rate = getRateForToken();
+        uint256 tokenOut = swapIn.mulDiv(rate, scale).mulDiv(10000 - priceImpact, 10000);
 
         if (tokenOut > tokenOneCnt) {
             revert("not enough funds");
