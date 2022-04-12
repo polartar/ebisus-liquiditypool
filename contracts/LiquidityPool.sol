@@ -134,8 +134,8 @@ contract LiquidityPool is ERC20, Ownable {
         uint256 fee = tokenAmtOne.mulDiv(basisFee, 10000);
         uint256 swapIn = tokenAmtOne.sub(fee);
         uint256 rate = getRate();
-        uint256 tokenOut = swapIn.div(rate).div(scale);
-
+        uint256 tokenOut = swapIn.div(rate).mul(scale);
+        
         if (tokenOut > tokenTwoCnt) {
             revert("not enough funds");
         }
