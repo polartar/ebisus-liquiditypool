@@ -23,14 +23,14 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
 
     IERC20 public tokenTwo;
     uint256 public basisFee;
+    address private feeTo;
+    uint256 croFee;
+    uint256 tokenFee;
 
     uint256 public tokenOneCnt;
     uint256 public tokenTwoCnt;
 
     EnumerableSet.AddressSet private addressArray;
-
-    mapping(address => uint256) public tokenOneFees;
-    mapping(address => uint256) public tokenTwoFees;
 
     uint256 constant scale = 10 ** 9;
 
@@ -153,6 +153,7 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
         require(tokenAmtOne > 0, "invalid quantity");
         
         uint256 fee = tokenAmtOne.mulDiv(basisFee, 10000);
+        croFee += fee;
         uint256 swapIn = tokenAmtOne.sub(fee);
         uint256 priceImpact = getPriceImpacForCro(msg.value);
         uint256 rate = getRateForCro();
@@ -163,14 +164,6 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
         tokenTwo.transfer(msg.sender, tokenOut);
         tokenOneCnt = tokenOneCnt.add(swapIn);
         tokenTwoCnt = tokenTwoCnt.sub(tokenOut);
-
-        uint256 addressLen = addressArray.length();
-        // fee aggregate
-        for (uint256 i = 0; i < addressLen; i++) {
-            address toAdd = addressArray.at(i);
-            uint256 liqTokens = balanceOf(toAdd);
-            tokenOneFees[toAdd] += fee.mulDiv(liqTokens, totalSupply());
-        }
 
         emit SwapOutCro(msg.sender, msg.value, tokenOut);
     }
@@ -183,6 +176,7 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
         );
 
         uint256 fee = tokenAmtTwo.mulDiv(basisFee, 10000);
+        tokenFee += fee;
         uint256 swapIn = tokenAmtTwo.sub(fee);
         uint256 priceImpact = getPriceImpacForToken(tokenAmtTwo);
         uint256 rate = getRateForToken();
@@ -198,30 +192,8 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
         tokenTwo.transferFrom(msg.sender, address(this), tokenAmtTwo);
         (bool success, ) = payable(msg.sender).call{value: tokenOut}("");
         require(success, "Transfer failed.");
-        
-        
-        uint256 addressLen = addressArray.length();
-        // fee aggregate
-        for (uint256 i = 0; i < addressLen; i++) {
-            address toAdd = addressArray.at(i);
-            uint256 liqTokens = balanceOf(toAdd);
-
-            tokenTwoFees[toAdd] += fee.mulDiv(liqTokens, totalSupply());
-        }
 
         emit SwapOutToken(msg.sender, tokenAmtTwo, tokenOut);
-    }
-
-    function payoutRewards() external payable {
-        uint256 tokenOnePayout = tokenOneFees[msg.sender];
-        uint256 tokenTwoPayout = tokenTwoFees[msg.sender];
-        tokenOneFees[msg.sender] = 0;
-        tokenTwoFees[msg.sender] = 0;
-
-        (bool success, ) = payable(msg.sender).call{value: tokenOnePayout}("");
-        require(success, "Transfer failed.");
-
-        tokenTwo.transfer(msg.sender, tokenTwoPayout);
     }
 
     function getReserves() external view returns(uint256, uint256) {
@@ -230,5 +202,20 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
 
     function setBaseFee(uint256 _fee) external onlyOwner {
         basisFee = _fee;
+    }
+
+    function setFeeTo(address _feeTo) external onlyOwner {
+        feeTo = _feeTo;
+    }
+
+    function withdrawFee() external onlyOwner {
+        if (croFee != 0) {
+            (bool success, ) = payable(feeTo).call{value: croFee}("");
+            croFee = 0;
+            require(success, "Transfer failed.");
+        }
+        if (tokenFee != 0) {
+            tokenTwo.transfer(feeTo, tokenFee);
+        }
     }
 }

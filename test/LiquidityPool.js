@@ -99,8 +99,10 @@ describe("Test LiquidityPool contract", function () {
     await expect(liquidityPool.connect(other1).swapOutCro({from: other1.address , value: parseEther("200")})).to.be.revertedWith("not enough funds");    
     await liquidityPool.connect(other1).swapOutCro({from: other1.address , value: parseEther("100")});    
     
-    await expect(() => liquidityPool.payoutRewards()).to.changeEtherBalance(owner, parseEther("1").mul(200).div(250))
-    await expect(() => liquidityPool.connect(other1).payoutRewards()).to.changeEtherBalance(other1, parseEther("1").mul(50).div(250))
+    await expect(liquidityPool.connect(other1).setFeeTo(other2.address)).to.be.revertedWith("Ownable: caller is not the owner");
+    await liquidityPool.setFeeTo(other2.address);
+    await expect(liquidityPool.connect(other1).withdrawFee()).to.be.revertedWith("Ownable: caller is not the owner");
+    await expect(() => liquidityPool.withdrawFee()).to.changeEtherBalance(other2, parseEther("1"))
   });
  
   it("Should pay the rewards token2", async function () {   
@@ -109,8 +111,8 @@ describe("Test LiquidityPool contract", function () {
 
     await liquidityPool.connect(other1).swapOutToken(parseEther("100"));
 
-    await expect(() => liquidityPool.payoutRewards()).to.changeTokenBalance(token2, owner, parseEther("1").mul(200).div(250))
-    await expect(() => liquidityPool.connect(other1).payoutRewards()).to.changeTokenBalance(token2, other1, parseEther("1").mul(50).div(250))
+    await liquidityPool.setFeeTo(other2.address);
+    await expect(() => liquidityPool.withdrawFee()).to.changeTokenBalance(token2, other2, parseEther("1"))
   });
 }); 
 
