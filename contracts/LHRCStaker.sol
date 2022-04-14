@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 //Copyright Ebisusbay.com 2021
 pragma solidity ^0.8.4;
 
