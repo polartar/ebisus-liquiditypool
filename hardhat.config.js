@@ -46,7 +46,7 @@ module.exports = {
       accounts:  process.env.SIGNER !== undefined ? [process.env.SIGNER] : [],
       gasPrice: 5000000000000,
       membership: '0x3F1590A5984C89e6d5831bFB76788F3517Cdf034',
-      LHRC: '0x6e7519C6105015d2c969aCC96545DC76583fBfCE',
+      LHRC: '0x05e3d66B9aed4D9bF091a9436898EFEBCc229440',
     }
   },
   paths: {
