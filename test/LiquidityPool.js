@@ -76,7 +76,7 @@ describe("Test LiquidityPool contract", function () {
 
   it("Should swap Cro to token2", async function () {   
     const initBalance = await token2.balanceOf(other1.address);
-    await expect(() => liquidityPool.connect(other1).swapOutOne({value: parseEther("4")})).to.changeEtherBalance(other1, parseEther("-4"));
+    await expect(() => liquidityPool.connect(other1).swapOutCro({value: parseEther("4")})).to.changeEtherBalance(other1, parseEther("-4"));
     const afterBalance = await token2.balanceOf(other1.address);
     const priceImpact = await liquidityPool.getPriceImpacForCro(parseEther("4"));
     expect(afterBalance.sub(initBalance)).to.be.equal(getSwapAmount(parseEther("16").mul(99).div(100), priceImpact));
@@ -87,7 +87,7 @@ describe("Test LiquidityPool contract", function () {
     
     const initBalance = await token2.balanceOf(owner.address);
     const priceImpact = await liquidityPool.getPriceImpacForToken(parseEther("16"));
-    await expect(() => liquidityPool.swapOutTwo(parseEther("16"))).to.changeEtherBalance(liquidityPool, getSwapAmount(parseEther("4").mul(-99).div(100), priceImpact));
+    await expect(() => liquidityPool.swapOutToken(parseEther("16"))).to.changeEtherBalance(liquidityPool, getSwapAmount(parseEther("4").mul(-99).div(100), priceImpact));
     const afterBalance = await token2.balanceOf(owner.address);
     expect(afterBalance.sub(initBalance)).to.be.equal(parseEther("-16"));
   });
@@ -96,8 +96,8 @@ describe("Test LiquidityPool contract", function () {
     await token2.connect(other1).approve(liquidityPool.address, parseEther("1000"));
     await liquidityPool.connect(other1).addLiquidity(parseEther("100"), {from: other1.address , value: parseEther("25")});
 
-    await expect(liquidityPool.connect(other1).swapOutOne({from: other1.address , value: parseEther("200")})).to.be.revertedWith("not enough funds");    
-    await liquidityPool.connect(other1).swapOutOne({from: other1.address , value: parseEther("100")});    
+    await expect(liquidityPool.connect(other1).swapOutCro({from: other1.address , value: parseEther("200")})).to.be.revertedWith("not enough funds");    
+    await liquidityPool.connect(other1).swapOutCro({from: other1.address , value: parseEther("100")});    
     
     await expect(() => liquidityPool.payoutRewards()).to.changeEtherBalance(owner, parseEther("1").mul(200).div(250))
     await expect(() => liquidityPool.connect(other1).payoutRewards()).to.changeEtherBalance(other1, parseEther("1").mul(50).div(250))
@@ -107,7 +107,7 @@ describe("Test LiquidityPool contract", function () {
     await token2.connect(other1).approve(liquidityPool.address, parseEther("1000"));
     await liquidityPool.connect(other1).addLiquidity(parseEther("100"), {from: other1.address , value: parseEther("25")});
 
-    await liquidityPool.connect(other1).swapOutTwo(parseEther("100"));
+    await liquidityPool.connect(other1).swapOutToken(parseEther("100"));
 
     await expect(() => liquidityPool.payoutRewards()).to.changeTokenBalance(token2, owner, parseEther("1").mul(200).div(250))
     await expect(() => liquidityPool.connect(other1).payoutRewards()).to.changeTokenBalance(token2, other1, parseEther("1").mul(50).div(250))

@@ -5,14 +5,21 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./SafeMathLite.sol";
 import "./SafePct.sol";
-import "hardhat/console.sol";
 
-contract LiquidityPool is ERC20, Ownable {
+contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
     using EnumerableSet for EnumerableSet.AddressSet;
     using SafeMathLite for uint256;
     using SafePct for uint256;
+
+    // Events
+    event NewPool(address indexed _address, uint256 lpAmount);
+    event NewLiquidity(address indexed _address, uint256 lpAmount);
+    event LessLiquidity(address indexed _address, uint256 percent);
+    event SwapOutCro(address indexed _address, uint256 inAmount, uint256 outAmount);
+    event SwapOutToken(address indexed _address, uint256 inAmount, uint256 outAmount);
 
     IERC20 public tokenTwo;
     uint256 public basisFee;
@@ -27,16 +34,10 @@ contract LiquidityPool is ERC20, Ownable {
 
     uint256 constant scale = 10 ** 9;
 
-    // Events
-    event NewPool(address _address, uint256 tokens);
-    event NewLiquidity(address _address);
-    event LessLiquidity(address _address);
-    event SwapDone(address _address);
-
     constructor(
         address tokenAddrTwo,
         uint256 _basisFee
-    ) ERC20("Layzy-Cro", "LazyHorse LP") {
+    ) ERC20("Lazy-Cro", "LazyHorse LP") {
         tokenTwo = IERC20(tokenAddrTwo);
         basisFee = _basisFee;
     }
@@ -102,11 +103,11 @@ contract LiquidityPool is ERC20, Ownable {
         addressArray.add(msg.sender);
         
         _mint(msg.sender, lpAmount);
-        emit NewLiquidity(msg.sender);
+        emit NewLiquidity(msg.sender, lpAmount);
     }
 
     // 0 to 100 is a invariant -- percent of holdings
-    function removeLiquidity(uint256 percent) external {
+    function removeLiquidity(uint256 percent) external nonReentrant {
         require(0 < percent && percent <= 100, "invalid removal percent");
         uint256 balance = balanceOf(msg.sender);
 
@@ -118,17 +119,17 @@ contract LiquidityPool is ERC20, Ownable {
 
         _burn(msg.sender, payout);
 
+        tokenOneCnt = tokenOneCnt.sub(tokenOnePayout);
+        tokenTwoCnt = tokenTwoCnt.sub(tokenTwoPayout);
+
         (bool success, ) = payable(msg.sender).call{value: tokenOnePayout}("");
         require(success, "Transfer failed.");
         tokenTwo.transfer(msg.sender, tokenTwoPayout);
 
-        tokenOneCnt = tokenOneCnt.sub(tokenOnePayout);
-        tokenTwoCnt = tokenTwoCnt.sub(tokenTwoPayout);
-
         if (percent == 100) {
             addressArray.remove(msg.sender);
         }
-        emit LessLiquidity(msg.sender);
+        emit LessLiquidity(msg.sender, percent);
     }
 
     function getPriceImpacForCro(uint256 _amount) public view returns(uint256) {
@@ -147,7 +148,7 @@ contract LiquidityPool is ERC20, Ownable {
         return priceImpact;
     }
 
-    function swapOutOne() public payable {
+    function swapOutCro() public payable {
         uint256 tokenAmtOne = msg.value;
         require(tokenAmtOne > 0, "invalid quantity");
         
@@ -171,10 +172,10 @@ contract LiquidityPool is ERC20, Ownable {
             tokenOneFees[toAdd] += fee.mulDiv(liqTokens, totalSupply());
         }
 
-        emit SwapDone(msg.sender);
+        emit SwapOutCro(msg.sender, msg.value, tokenOut);
     }
 
-    function swapOutTwo(uint256 tokenAmtTwo) external {
+    function swapOutToken(uint256 tokenAmtTwo) external {
         require(tokenAmtTwo > 0, "invalid quantity");
         require(
             tokenTwo.allowance(msg.sender, address(this)) >= tokenAmtTwo,
@@ -190,11 +191,14 @@ contract LiquidityPool is ERC20, Ownable {
         if (tokenOut > tokenOneCnt) {
             revert("not enough funds");
         }
+
+        tokenOneCnt = tokenOneCnt.sub(tokenOut);
+        tokenTwoCnt = tokenTwoCnt.add(swapIn);
+
         tokenTwo.transferFrom(msg.sender, address(this), tokenAmtTwo);
         (bool success, ) = payable(msg.sender).call{value: tokenOut}("");
         require(success, "Transfer failed.");
-        tokenOneCnt = tokenOneCnt.sub(tokenOut);
-        tokenTwoCnt = tokenTwoCnt.add(swapIn);
+        
         
         uint256 addressLen = addressArray.length();
         // fee aggregate
@@ -205,7 +209,7 @@ contract LiquidityPool is ERC20, Ownable {
             tokenTwoFees[toAdd] += fee.mulDiv(liqTokens, totalSupply());
         }
 
-        emit SwapDone(msg.sender);
+        emit SwapOutToken(msg.sender, tokenAmtTwo, tokenOut);
     }
 
     function payoutRewards() external payable {
@@ -220,7 +224,11 @@ contract LiquidityPool is ERC20, Ownable {
         tokenTwo.transfer(msg.sender, tokenTwoPayout);
     }
 
-     function getReserves() external view returns(uint256, uint256) {
+    function getReserves() external view returns(uint256, uint256) {
         return (tokenOneCnt, tokenTwoCnt);
+    }
+
+    function setBaseFee(uint256 _fee) external onlyOwner {
+        basisFee = _fee;
     }
 }

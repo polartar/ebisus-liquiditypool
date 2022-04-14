@@ -17,7 +17,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "./SafePct.sol";
 import "./SafeMathLite.sol";
-import "hardhat/console.sol";
 
 interface ILiquidityPool {
     function getReserves() external view returns(uint256, uint256);
