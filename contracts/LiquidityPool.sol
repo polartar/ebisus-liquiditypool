@@ -55,7 +55,7 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
         }
     }
 
-    function initPool(uint256 tTwoAmt) public onlyOwner payable {
+    function initPool(uint256 tTwoAmt) external onlyOwner payable {
         require(totalSupply() == 0, "already initialized pool");
         require(msg.value != 0 && tTwoAmt !=0 , "can't zero amount");
 
@@ -83,7 +83,7 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
         return tokenTwoCnt * scale / tokenOneCnt ;
     }
 
-    function addLiquidity(uint256 tTwoAmt) public payable {
+    function addLiquidity(uint256 tTwoAmt) external payable {
         require(
             tokenTwo.allowance(msg.sender, address(this)) >= tTwoAmt,
             "not enough allowance token2"
