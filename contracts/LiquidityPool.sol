@@ -24,8 +24,6 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
     IERC20 public tokenTwo;
     uint256 public basisFee;
     address private feeTo;
-    uint256 croFee;
-    uint256 tokenFee;
 
     uint256 public tokenOneCnt;
     uint256 public tokenTwoCnt;
@@ -36,10 +34,12 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
 
     constructor(
         address tokenAddrTwo,
-        uint256 _basisFee
+        uint256 _basisFee,
+        uint256 _feeTo
     ) ERC20("Lazy-Cro", "LazyHorse LP") {
         tokenTwo = IERC20(tokenAddrTwo);
         basisFee = _basisFee;
+        feeTo = _feeTo;
     }
 
     function sqrt(uint y) internal pure returns (uint z) {
@@ -153,7 +153,9 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
         require(tokenAmtOne > 0, "invalid quantity");
         
         uint256 fee = tokenAmtOne.mulDiv(basisFee, 10000);
-        croFee += fee;
+       (bool success, ) = payable(feeTo).call{value: fee}("");
+        require(success, "Fee Transfer failed.");
+
         uint256 swapIn = tokenAmtOne.sub(fee);
         uint256 priceImpact = getPriceImpacForCro(msg.value);
         uint256 rate = getRateForCro();
@@ -162,6 +164,7 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
             revert("not enough funds");
         }
         tokenTwo.transfer(msg.sender, tokenOut);
+        (bool success, ) = payable(msg.sender).call{value: tokenOut}("");
         tokenOneCnt = tokenOneCnt.add(swapIn);
         tokenTwoCnt = tokenTwoCnt.sub(tokenOut);
 
@@ -176,7 +179,9 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
         );
 
         uint256 fee = tokenAmtTwo.mulDiv(basisFee, 10000);
-        tokenFee += fee;
+        
+        tokenTwo.transferFrom(address(this), feeTo, fee);
+
         uint256 swapIn = tokenAmtTwo.sub(fee);
         uint256 priceImpact = getPriceImpacForToken(tokenAmtTwo);
         uint256 rate = getRateForToken();
@@ -206,16 +211,5 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
 
     function setFeeTo(address _feeTo) external onlyOwner {
         feeTo = _feeTo;
-    }
-
-    function withdrawFee() external onlyOwner {
-        if (croFee != 0) {
-            (bool success, ) = payable(feeTo).call{value: croFee}("");
-            croFee = 0;
-            require(success, "Transfer failed.");
-        }
-        if (tokenFee != 0) {
-            tokenTwo.transfer(feeTo, tokenFee);
-        }
     }
 }
