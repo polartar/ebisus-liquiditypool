@@ -188,6 +188,7 @@ UUPSUpgradeable {
     }
 
     function stakeNFT(address _nft, uint256 _nftId, address _multipliedAddress) external{
+        require(_multipliedAddress == stakeToken || _multipliedAddress == lpToken, "invalid multipliedAddress");
         uint256 currentTime = block.timestamp;
         require(stakedNFTs[msg.sender][_multipliedAddress].length < maxNFTPerWallet, "exceed max nfts");
         require(IERC721(_nft).ownerOf(_nftId) == msg.sender, "not nft owner");

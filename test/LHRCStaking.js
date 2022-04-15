@@ -97,6 +97,8 @@ describe("Test LHRCStaker contract", function () {
     await LHRCStaker.connect(admin).registerAmplifyNFT(ponyNFT.address, 4);
     expect(await ponyNFT.ownerOf(1)).to.be.equal(admin.address);
    
+    await expect(LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1, other.address)).to.be.revertedWith("invalid multipliedAddress");
+
     // staked and emit event
     await expect(LHRCStaker.connect(admin).stakeNFT(ponyNFT.address, 1, stakeToken.address)).to.emit(LHRCStaker, "NFTStaked").withArgs(admin.address, ponyNFT.address, 1);
 
