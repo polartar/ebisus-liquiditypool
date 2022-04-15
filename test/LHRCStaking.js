@@ -15,10 +15,10 @@ describe("Test LHRCStaker contract", function () {
   let stakeToken;
   let lpToken;
 
-  let deployer, admin, other;
+  let deployer, admin, other, feeTo;
   before(async() => {
     accounts = await ethers.getSigners();
-    [deployer, admin, other] = accounts;
+    [deployer, admin, other, feeTo] = accounts;
     LHRCStakerFactory = await ethers.getContractFactory("LHRCStaker");
     mockERC721Factory = await ethers.getContractFactory("MockERC721");
     mockERC20Factory = await ethers.getContractFactory("MockERC20");
@@ -43,7 +43,7 @@ describe("Test LHRCStaker contract", function () {
     await stakeToken.deployed();
     await stakeToken.transfer(admin.address, parseEther("1000"));
    
-    lpToken = await lpFactory.connect(admin).deploy(stakeToken.address, 100);
+    lpToken = await lpFactory.connect(admin).deploy(stakeToken.address, 100, feeTo.address);
     await lpToken.deployed();
     await stakeToken.connect(admin).approve(lpToken.address, parseEther("400"));
     await lpToken.connect(admin).initPool(parseEther("400"), {value: parseEther("100")});

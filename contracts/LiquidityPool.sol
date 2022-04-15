@@ -35,7 +35,7 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
     constructor(
         address tokenAddrTwo,
         uint256 _basisFee,
-        uint256 _feeTo
+        address _feeTo
     ) ERC20("Lazy-Cro", "LazyHorse LP") {
         tokenTwo = IERC20(tokenAddrTwo);
         basisFee = _basisFee;
@@ -153,6 +153,7 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
         require(tokenAmtOne > 0, "invalid quantity");
         
         uint256 fee = tokenAmtOne.mulDiv(basisFee, 10000);
+
        (bool success, ) = payable(feeTo).call{value: fee}("");
         require(success, "Fee Transfer failed.");
 
@@ -164,7 +165,7 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
             revert("not enough funds");
         }
         tokenTwo.transfer(msg.sender, tokenOut);
-        (bool success, ) = payable(msg.sender).call{value: tokenOut}("");
+        (success, ) = payable(msg.sender).call{value: tokenOut}("");
         tokenOneCnt = tokenOneCnt.add(swapIn);
         tokenTwoCnt = tokenTwoCnt.sub(tokenOut);
 
@@ -180,7 +181,7 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
 
         uint256 fee = tokenAmtTwo.mulDiv(basisFee, 10000);
         
-        tokenTwo.transferFrom(address(this), feeTo, fee);
+        tokenTwo.transfer(feeTo, fee);
 
         uint256 swapIn = tokenAmtTwo.sub(fee);
         uint256 priceImpact = getPriceImpacForToken(tokenAmtTwo);
