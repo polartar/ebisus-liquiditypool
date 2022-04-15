@@ -4,13 +4,11 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./SafeMathLite.sol";
 import "./SafePct.sol";
 
 contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
-    using EnumerableSet for EnumerableSet.AddressSet;
     using SafeMathLite for uint256;
     using SafePct for uint256;
 
@@ -27,8 +25,6 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
 
     uint256 public tokenOneCnt;
     uint256 public tokenTwoCnt;
-
-    EnumerableSet.AddressSet private addressArray;
 
     uint256 constant scale = 10 ** 9;
 
@@ -68,7 +64,6 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
         tokenOneCnt = msg.value;
         tokenTwoCnt = tokenTwo.balanceOf(address(this));
 
-        addressArray.add(msg.sender);
         uint256 lpAmount = sqrt(tokenOneCnt.mul(tTwoAmt));
         _mint(msg.sender, lpAmount);
 
@@ -99,9 +94,7 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
         tokenOneCnt = tokenOneCnt.add(msg.value);
         tokenTwoCnt = tokenTwoCnt.add(tTwoAmt);
         uint256 lpAmount = sqrt(msg.value.mul(tTwoAmt));
-        
-        addressArray.add(msg.sender);
-        
+                
         _mint(msg.sender, lpAmount);
         emit NewLiquidity(msg.sender, lpAmount);
     }
@@ -126,9 +119,6 @@ contract LiquidityPool is ERC20, Ownable, ReentrancyGuard {
         require(success, "Transfer failed.");
         tokenTwo.transfer(msg.sender, tokenTwoPayout);
 
-        if (percent == 100) {
-            addressArray.remove(msg.sender);
-        }
         emit LessLiquidity(msg.sender, percent);
     }
 
