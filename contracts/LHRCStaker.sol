@@ -95,12 +95,12 @@ UUPSUpgradeable {
          ampliyNFTs.add(0x000732Ddc0f7208b2400944d4a7296bc001aE866);
          ampliyNFTs.add(0xEd8d78449402f44C8e9B0a38de785D0CaD73F76e);
          ampliyNFTs.add(0x3fc2bac73bC7ceFA6Efb00a49dD646841f70240D);
-         ampliyNFTs.add(0xEa4BC6Cc245F73b9E60e33943632D6001bf73ee5);
+         ampliyNFTs.add(0xC997749351CC4C9770f885B0147F455F5907F11A);
 
          amplifiers[0x000732Ddc0f7208b2400944d4a7296bc001aE866] = 2;
          amplifiers[0xEd8d78449402f44C8e9B0a38de785D0CaD73F76e] = 3;
          amplifiers[0x3fc2bac73bC7ceFA6Efb00a49dD646841f70240D] = 4;
-         amplifiers[0xEa4BC6Cc245F73b9E60e33943632D6001bf73ee5] = 10;
+         amplifiers[0xC997749351CC4C9770f885B0147F455F5907F11A] = 10;
         
         // //mainnet Barn, PONY, HORSE, Skybox
         //  ampliyNFTs.add(0x8449821E8334D79e455223739D41eeF55e36583e);
